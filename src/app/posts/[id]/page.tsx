@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { IconArrowLeft, IconAlertTriangle, IconLock } from "@tabler/icons-react";
 import { getEnv } from "@/lib/cloudflare";
+import { getStateFlag } from "@/lib/flags";
+import AvatarInitials from "@/components/AvatarInitials";
+import StatusPill from "@/components/StatusPill";
 import ReplyForm from "./ReplyForm";
 
 export const dynamic = "force-dynamic";
@@ -106,27 +110,31 @@ export default async function PostDetailPage({
 
   return (
     <div className="max-w-md mx-auto space-y-6">
-      <div className="border rounded p-4 bg-white">
-        {post.photo_key && (
+      <a href="/personas" className="text-sm text-red-800 flex items-center gap-1">
+        <IconArrowLeft size={14} /> Volver a personas desaparecidas
+      </a>
+
+      <div className="rounded-lg p-4 bg-white">
+        {post.photo_key ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`/api/photos/${post.photo_key}`}
             alt={post.name}
-            className="w-full max-h-80 object-cover rounded mb-3"
+            className="w-full max-h-80 object-cover rounded-lg mb-3"
           />
+        ) : (
+          <div className="flex items-center gap-3 mb-3">
+            <AvatarInitials name={post.name} size={56} />
+          </div>
         )}
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold">{post.name}</h1>
+          <h1 className="text-xl font-medium">{post.name}</h1>
           {post.age && <span className="text-neutral-500">{post.age}</span>}
-          {post.status === "found" && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-              Encontrado
-            </span>
-          )}
+          <StatusPill status={post.status === "found" ? "found" : "looking"} />
         </div>
         {post.state && (
-          <p className="text-neutral-700 mt-1">
-            <span className="font-medium">Estado:</span> {post.state}
+          <p className="text-neutral-700 mt-2">
+            {getStateFlag(post.state)} <span className="font-medium">{post.state}</span>
           </p>
         )}
         <p className="text-neutral-700 mt-1">
@@ -134,7 +142,8 @@ export default async function PostDetailPage({
           {post.last_known_location}
         </p>
         {post.description && <p className="text-neutral-700 mt-1">{post.description}</p>}
-        <p className="text-neutral-700 mt-1 text-sm bg-neutral-50 border rounded p-2">
+        <p className="text-neutral-700 mt-2 text-sm bg-neutral-50 rounded-lg p-2 flex items-start gap-2">
+          <IconLock size={16} className="text-neutral-500 shrink-0 mt-0.5" />
           Por seguridad, no mostramos el contacto directo de quien publicó. Usa el formulario de
           respuesta abajo para comunicarte — la persona que publicó verá tu mensaje y tu
           contacto.
@@ -143,7 +152,8 @@ export default async function PostDetailPage({
           Publicado {new Date(post.created_at + "Z").toLocaleString("es-VE")}
         </p>
         {isStale && (
-          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-2">
+          <p className="text-xs text-amber-800 bg-amber-50 rounded-lg p-2 mt-2 flex items-center gap-1.5">
+            <IconAlertTriangle size={14} className="shrink-0" />
             Esta publicación no se ha confirmado en {daysSinceConfirmed} días. Es posible que la
             información esté desactualizada.
           </p>
@@ -151,17 +161,17 @@ export default async function PostDetailPage({
       </div>
 
       <div>
-        <h2 className="font-semibold mb-2">Respuestas ({replies.length})</h2>
+        <h2 className="font-medium mb-2">Respuestas ({replies.length})</h2>
         {replies.length === 0 ? (
           <p className="text-neutral-500 text-sm mb-4">Aún no hay respuestas.</p>
         ) : (
           <ul className="space-y-3 mb-4">
             {replies.map((reply) => (
-              <li key={reply.id} className="border rounded p-3 bg-white">
+              <li key={reply.id} className="rounded-lg p-3 bg-white">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{reply.author_name}</span>
                   {NOTE_TYPE_LABELS[reply.note_type] && (
-                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                    <span className="text-[10px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
                       {NOTE_TYPE_LABELS[reply.note_type]}
                     </span>
                   )}

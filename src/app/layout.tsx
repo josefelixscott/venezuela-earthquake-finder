@@ -32,8 +32,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
         <header className="bg-blue-700 text-white px-4 py-3 shadow">
           <div className="max-w-3xl mx-auto flex items-center justify-between gap-2">
-            <a href="/" className="font-bold text-lg">
-              Ayuda Terremoto Venezuela
+            <a href="/" className="font-bold text-lg flex items-center gap-1.5">
+              <span aria-hidden="true">🇻🇪</span> Ayuda Terremoto Venezuela
             </a>
             <div className="flex items-center gap-3 shrink-0 text-sm">
               <a href="/como-funciona" className="underline whitespace-nowrap">

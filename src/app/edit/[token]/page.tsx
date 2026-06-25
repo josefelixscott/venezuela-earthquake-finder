@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IconCheck, IconCopy, IconDeviceFloppy } from "@tabler/icons-react";
 import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 interface PostRow {
@@ -187,8 +188,8 @@ export default function EditPostPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       {justCreated && (
-        <div className="bg-yellow-50 border border-yellow-300 rounded p-3 text-sm text-yellow-800">
-          <p className="font-semibold mb-1">¡Publicación creada! Guarda este enlace.</p>
+        <div className="bg-amber-50 rounded-lg p-3 text-sm text-amber-900">
+          <p className="font-medium mb-1">¡Publicación creada! Guarda este enlace.</p>
           <p>
             Esta página te permite editar la publicación, ver respuestas con su contacto, o
             marcarla como <strong>encontrado/a</strong> más adelante. No podrás volver a esta
@@ -196,21 +197,22 @@ export default function EditPostPage() {
           </p>
           <button
             onClick={copyLink}
-            className="mt-2 bg-yellow-200 px-3 py-1 rounded text-yellow-900 text-xs font-medium"
+            className="mt-2 flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-900 text-xs font-medium"
           >
+            <IconCopy size={13} />
             {copied ? "¡Copiado!" : "Copiar enlace"}
           </button>
         </div>
       )}
 
       <div>
-        <h1 className="text-2xl font-bold">Editar publicación</h1>
-        <a href={`/posts/${post.id}`} className="text-sm text-red-700 underline">
+        <h1 className="text-2xl font-medium">Editar publicación</h1>
+        <a href={`/posts/${post.id}`} className="text-sm text-red-800 underline">
           Ver publicación pública
         </a>
       </div>
 
-      <div className="bg-neutral-50 border rounded p-3 text-sm flex items-center justify-between gap-3">
+      <div className="bg-white rounded-lg p-3 text-sm flex items-center justify-between gap-3">
         <span className="text-neutral-600">
           Confirmada hace {daysSinceConfirmed === 0 ? "menos de un día" : `${daysSinceConfirmed} días`}.
           Confirma regularmente para que otros sepan que la publicación sigue vigente.
@@ -218,20 +220,21 @@ export default function EditPostPage() {
         <button
           onClick={handleConfirmStillLooking}
           disabled={confirming}
-          className="bg-neutral-800 text-white px-3 py-1.5 rounded text-xs font-medium whitespace-nowrap disabled:opacity-50"
+          className="flex items-center gap-1 bg-neutral-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap disabled:opacity-50"
         >
+          <IconCheck size={13} />
           {confirming ? "..." : "Sigo buscando"}
         </button>
       </div>
 
-      <div className="border rounded p-3">
+      <div className="bg-white rounded-lg p-3">
         <label className="block text-sm font-medium mb-1">Foto</label>
         {post.photo_key && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`/api/photos/${post.photo_key}`}
             alt={post.name}
-            className="w-24 h-24 object-cover rounded mb-2"
+            className="w-24 h-24 object-cover rounded-lg mb-2"
           />
         )}
         <input
@@ -248,7 +251,7 @@ export default function EditPostPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-4">
+      <form onSubmit={handleSave} className="space-y-4 bg-white rounded-lg p-4">
         <div>
           <label className="block text-sm font-medium mb-1">Estado de la búsqueda</label>
           <select
@@ -332,24 +335,25 @@ export default function EditPostPage() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-red-700 text-white py-2.5 rounded font-semibold disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-1.5 bg-red-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50"
         >
+          <IconDeviceFloppy size={18} stroke={1.75} />
           {saving ? "Guardando..." : "Guardar cambios"}
         </button>
       </form>
 
       <div>
-        <h2 className="font-semibold mb-2">Respuestas ({replies.length})</h2>
+        <h2 className="font-medium mb-2">Respuestas ({replies.length})</h2>
         {replies.length === 0 ? (
           <p className="text-neutral-500 text-sm">Aún no hay respuestas.</p>
         ) : (
           <ul className="space-y-3">
             {replies.map((reply) => (
-              <li key={reply.id} className="border rounded p-3 bg-white">
+              <li key={reply.id} className="rounded-lg p-3 bg-white">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{reply.author_name}</span>
                   {NOTE_TYPE_LABELS[reply.note_type] && (
-                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                    <span className="text-[10px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
                       {NOTE_TYPE_LABELS[reply.note_type]}
                     </span>
                   )}

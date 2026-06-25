@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { IconArrowLeft, IconExternalLink, IconPhone } from "@tabler/icons-react";
 import { getEnv } from "@/lib/cloudflare";
 import { CATEGORY_LABELS } from "@/lib/initiativeCategories";
+import { getStateFlag } from "@/lib/flags";
+import InitiativeIcon from "@/components/InitiativeIcon";
 
 export const dynamic = "force-dynamic";
 
@@ -72,27 +75,31 @@ export default async function InitiativeDetailPage({
 
   return (
     <div className="max-w-md mx-auto space-y-4">
-      <a href="/iniciativas" className="text-sm text-red-700 underline">
-        Volver a iniciativas
+      <a href="/iniciativas" className="text-sm text-red-800 flex items-center gap-1">
+        <IconArrowLeft size={14} /> Volver a iniciativas
       </a>
-      <div className="border rounded p-4 bg-white">
-        {initiative.photo_key && (
+      <div className="rounded-lg p-4 bg-white">
+        {initiative.photo_key ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`/api/photos/${initiative.photo_key}`}
             alt={initiative.title}
-            className="w-full max-h-80 object-cover rounded mb-3"
+            className="w-full max-h-80 object-cover rounded-lg mb-3"
           />
+        ) : (
+          <div className="mb-3">
+            <InitiativeIcon category={initiative.category} size={56} />
+          </div>
         )}
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold">{initiative.title}</h1>
-          <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
-            {CATEGORY_LABELS[initiative.category] ?? initiative.category}
-          </span>
+          <h1 className="text-xl font-medium">{initiative.title}</h1>
         </div>
+        <span className="inline-block text-[10px] bg-teal-50 text-teal-800 px-2 py-0.5 rounded-full mt-1">
+          {CATEGORY_LABELS[initiative.category] ?? initiative.category}
+        </span>
         {initiative.state && (
-          <p className="text-neutral-700 mt-1">
-            <span className="font-medium">Estado:</span> {initiative.state}
+          <p className="text-neutral-700 mt-2">
+            {getStateFlag(initiative.state)} <span className="font-medium">{initiative.state}</span>
           </p>
         )}
         <p className="text-neutral-700 mt-1">
@@ -101,22 +108,23 @@ export default async function InitiativeDetailPage({
         {initiative.description && (
           <p className="text-neutral-700 mt-1">{initiative.description}</p>
         )}
-        <p className="text-neutral-700 mt-1">
-          <span className="font-medium">Contacto:</span> {initiative.contact_info}
+        <p className="text-neutral-700 mt-2 flex items-center gap-1.5">
+          <IconPhone size={16} className="text-neutral-500 shrink-0" />
+          {initiative.contact_info}
         </p>
         {initiative.link && (
-          <p className="mt-2">
+          <p className="mt-3">
             <a
               href={initiative.link}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className="inline-block bg-red-700 text-white px-3 py-1.5 rounded text-sm font-medium"
+              className="inline-flex items-center gap-1.5 bg-red-800 text-white px-3 py-2 rounded-lg text-sm font-medium"
             >
-              Visitar enlace (recaudación, redes, más información)
+              <IconExternalLink size={16} /> Visitar enlace (recaudación, redes, más información)
             </a>
           </p>
         )}
-        <p className="text-xs text-neutral-400 mt-2">
+        <p className="text-xs text-neutral-400 mt-3">
           Publicado {new Date(initiative.created_at + "Z").toLocaleString("es-VE")}
         </p>
       </div>

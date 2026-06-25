@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { IconSend } from "@tabler/icons-react";
 
 export default function ReplyForm({ postId }: { postId: string }) {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function ReplyForm({ postId }: { postId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2 border-t pt-4">
+    <form onSubmit={handleSubmit} className="space-y-2 bg-white rounded-lg p-4">
       <h3 className="font-medium text-sm">¿Tienes información? Responde aquí.</h3>
       <input
         type="text"
@@ -81,8 +82,9 @@ export default function ReplyForm({ postId }: { postId: string }) {
       <button
         type="submit"
         disabled={submitting}
-        className="bg-neutral-800 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+        className="flex items-center gap-1.5 bg-neutral-800 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50"
       >
+        <IconSend size={16} stroke={1.75} />
         {submitting ? "Enviando..." : "Enviar respuesta"}
       </button>
     </form>

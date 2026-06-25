@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { IconArrowLeft, IconUserSearch } from "@tabler/icons-react";
 import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 export default function NewPostPage() {
@@ -30,9 +31,12 @@ export default function NewPostPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Publica sobre alguien que buscas</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-md mx-auto space-y-4">
+      <a href="/personas" className="text-sm text-red-800 flex items-center gap-1">
+        <IconArrowLeft size={14} /> Volver a personas desaparecidas
+      </a>
+      <h1 className="text-2xl font-medium">Publica sobre alguien que buscas</h1>
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg p-4">
         <input
           type="text"
           name="website"
@@ -107,8 +111,9 @@ export default function NewPostPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-red-700 text-white py-2.5 rounded font-semibold disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-1.5 bg-red-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50"
         >
+          <IconUserSearch size={18} stroke={1.75} />
           {submitting ? "Publicando..." : "Publicar"}
         </button>
       </form>

@@ -1,7 +1,17 @@
 import Link from "next/link";
+import {
+  IconUsers,
+  IconUserSearch,
+  IconCheck,
+  IconArrowLeft,
+  IconAlertTriangle,
+} from "@tabler/icons-react";
 import { getEnv } from "@/lib/cloudflare";
 import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 import { getPostStats } from "@/lib/postStats";
+import { getStateFlag } from "@/lib/flags";
+import AvatarInitials from "@/components/AvatarInitials";
+import StatusPill from "@/components/StatusPill";
 
 export const dynamic = "force-dynamic";
 
@@ -62,31 +72,34 @@ export default async function PersonasPage({
 
   return (
     <div className="space-y-6">
-      <a href="/" className="text-sm text-red-700 underline">
-        Volver al inicio
+      <a href="/" className="text-sm text-red-800 flex items-center gap-1">
+        <IconArrowLeft size={14} /> Volver al inicio
       </a>
 
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-neutral-100 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-neutral-800">{stats.total}</div>
-          <div className="text-xs text-neutral-600 mt-1">Personas registradas</div>
+        <div className="bg-white rounded-lg p-3 text-center">
+          <IconUsers size={20} stroke={1.75} className="mx-auto text-neutral-500" />
+          <div className="text-xl font-medium mt-1">{stats.total}</div>
+          <div className="text-xs text-neutral-600 mt-0.5">Registradas</div>
         </div>
         <div className="bg-red-50 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-red-700">{stats.looking}</div>
-          <div className="text-xs text-red-700 mt-1">Por localizar</div>
+          <IconUserSearch size={20} stroke={1.75} className="mx-auto text-red-800" />
+          <div className="text-xl font-medium mt-1 text-red-800">{stats.looking}</div>
+          <div className="text-xs text-red-800 mt-0.5">Por localizar</div>
         </div>
         <div className="bg-green-50 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-green-700">{stats.found}</div>
-          <div className="text-xs text-green-700 mt-1">Localizadas</div>
+          <IconCheck size={20} stroke={1.75} className="mx-auto text-green-800" />
+          <div className="text-xl font-medium mt-1 text-green-800">{stats.found}</div>
+          <div className="text-xs text-green-800 mt-0.5">Localizadas</div>
         </div>
       </div>
 
       <div>
-        <h1 className="text-2xl font-bold">Personas desaparecidas</h1>
+        <h1 className="text-2xl font-medium">Personas desaparecidas 🇻🇪</h1>
         <p className="text-neutral-600 mt-1">
           Publica sobre un familiar desaparecido, o busca para ver si alguien ha publicado sobre
           alguien que conoces.{" "}
-          <a href="/como-funciona" className="text-red-700 underline">
+          <a href="/como-funciona" className="text-red-800 underline">
             Ver cómo funciona
           </a>
           .
@@ -120,7 +133,7 @@ export default async function PersonasPage({
         </form>
         <a
           href="/new"
-          className="bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm whitespace-nowrap"
+          className="bg-red-800 text-white px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap"
         >
           + Publicar
         </a>
@@ -129,7 +142,7 @@ export default async function PersonasPage({
       {q && (
         <p className="text-sm text-neutral-500">
           ¿Buscas iniciativas de ayuda en lugar de personas?{" "}
-          <a href={`/iniciativas?q=${encodeURIComponent(q)}`} className="text-red-700 underline">
+          <a href={`/iniciativas?q=${encodeURIComponent(q)}`} className="text-red-800 underline">
             Búscalas aquí
           </a>
           .
@@ -143,7 +156,7 @@ export default async function PersonasPage({
             : "Aún no hay publicaciones. Sé el primero en publicar."}
         </p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-2">
           {posts.map((post) => {
             const daysSinceConfirmed = Math.floor(
               (Date.now() - new Date(post.last_confirmed_at + "Z").getTime()) /
@@ -154,39 +167,37 @@ export default async function PersonasPage({
               <li key={post.id}>
                 <Link
                   href={`/posts/${post.id}`}
-                  className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
+                  className="flex items-center gap-3 rounded-lg p-3 bg-white hover:bg-neutral-50"
                 >
                   {post.photo_key ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={`/api/photos/${post.photo_key}`}
                       alt={post.name}
-                      className="w-16 h-16 object-cover rounded shrink-0"
+                      className="w-12 h-12 object-cover rounded-full shrink-0"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
+                    <AvatarInitials name={post.name} size={48} />
                   )}
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{post.name}</span>
+                      <span className="font-medium truncate">{post.name}</span>
                       {post.age && <span className="text-sm text-neutral-500">{post.age}</span>}
-                      {post.status === "found" && (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                          Encontrado
-                        </span>
-                      )}
-                      {isStale && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          Sin confirmar
-                        </span>
-                      )}
                     </div>
-                    <div className="text-sm text-neutral-600">
-                      {post.state && <span className="font-medium">{post.state} — </span>}
+                    <div className="text-sm text-neutral-600 truncate">
+                      {getStateFlag(post.state)} {post.state ? `${post.state} — ` : ""}
                       {post.last_known_location}
                     </div>
                     {post.description && (
                       <div className="text-sm text-neutral-500 truncate">{post.description}</div>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <StatusPill status={post.status === "found" ? "found" : "looking"} />
+                    {isStale && (
+                      <span className="text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                        <IconAlertTriangle size={10} /> Sin confirmar
+                      </span>
                     )}
                   </div>
                 </Link>

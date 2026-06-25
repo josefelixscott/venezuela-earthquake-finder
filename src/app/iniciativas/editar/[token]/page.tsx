@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IconCopy, IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 import { CATEGORY_OPTIONS } from "@/lib/initiativeCategories";
 import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
@@ -162,36 +163,37 @@ export default function EditInitiativePage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       {justCreated && (
-        <div className="bg-yellow-50 border border-yellow-300 rounded p-3 text-sm text-yellow-800">
-          <p className="font-semibold mb-1">¡Iniciativa publicada! Guarda este enlace.</p>
+        <div className="bg-amber-50 rounded-lg p-3 text-sm text-amber-900">
+          <p className="font-medium mb-1">¡Iniciativa publicada! Guarda este enlace.</p>
           <p>
             Esta página te permite editar o eliminar tu iniciativa más adelante. No podrás
             volver a esta página sin el enlace.
           </p>
           <button
             onClick={copyLink}
-            className="mt-2 bg-yellow-200 px-3 py-1 rounded text-yellow-900 text-xs font-medium"
+            className="mt-2 flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-900 text-xs font-medium"
           >
+            <IconCopy size={13} />
             {copied ? "¡Copiado!" : "Copiar enlace"}
           </button>
         </div>
       )}
 
       <div>
-        <h1 className="text-2xl font-bold">Editar iniciativa</h1>
-        <a href={`/iniciativas/${initiative.id}`} className="text-sm text-red-700 underline">
+        <h1 className="text-2xl font-medium">Editar iniciativa</h1>
+        <a href={`/iniciativas/${initiative.id}`} className="text-sm text-red-800 underline">
           Ver iniciativa pública
         </a>
       </div>
 
-      <div className="border rounded p-3">
+      <div className="bg-white rounded-lg p-3">
         <label className="block text-sm font-medium mb-1">Foto</label>
         {initiative.photo_key && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`/api/photos/${initiative.photo_key}`}
             alt={initiative.title}
-            className="w-24 h-24 object-cover rounded mb-2"
+            className="w-24 h-24 object-cover rounded-lg mb-2"
           />
         )}
         <input
@@ -205,7 +207,7 @@ export default function EditInitiativePage() {
         {photoError && <p className="text-red-600 text-sm mt-1">{photoError}</p>}
       </div>
 
-      <form onSubmit={handleSave} className="space-y-4">
+      <form onSubmit={handleSave} className="space-y-4 bg-white rounded-lg p-4">
         <div>
           <label className="block text-sm font-medium mb-1">Título *</label>
           <input
@@ -291,8 +293,9 @@ export default function EditInitiativePage() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-red-700 text-white py-2.5 rounded font-semibold disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-1.5 bg-teal-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50"
         >
+          <IconDeviceFloppy size={18} stroke={1.75} />
           {saving ? "Guardando..." : "Guardar cambios"}
         </button>
       </form>
@@ -300,8 +303,9 @@ export default function EditInitiativePage() {
       <button
         onClick={handleDelete}
         disabled={deleting}
-        className="w-full border border-red-300 text-red-700 py-2 rounded text-sm disabled:opacity-50"
+        className="w-full flex items-center justify-center gap-1.5 bg-red-50 text-red-800 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50"
       >
+        <IconTrash size={16} />
         {deleting ? "Eliminando..." : "Eliminar iniciativa"}
       </button>
     </div>

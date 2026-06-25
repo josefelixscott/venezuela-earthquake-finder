@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { IconArrowLeft, IconHeartHandshake } from "@tabler/icons-react";
 import { CATEGORY_OPTIONS } from "@/lib/initiativeCategories";
 import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
@@ -31,13 +32,18 @@ export default function NewInitiativePage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Publica una iniciativa de ayuda</h1>
-      <p className="text-neutral-600 text-sm mb-4">
-        A diferencia de las publicaciones de personas buscadas, aquí tu información de contacto
-        sí se muestra públicamente, porque el objetivo es que te encuentren fácilmente.
-      </p>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-md mx-auto space-y-4">
+      <a href="/iniciativas" className="text-sm text-red-800 flex items-center gap-1">
+        <IconArrowLeft size={14} /> Volver a iniciativas
+      </a>
+      <div>
+        <h1 className="text-2xl font-medium">Publica una iniciativa de ayuda</h1>
+        <p className="text-neutral-600 text-sm mt-1">
+          A diferencia de las publicaciones de personas buscadas, aquí tu información de contacto
+          sí se muestra públicamente, porque el objetivo es que te encuentren fácilmente.
+        </p>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg p-4">
         <input
           type="text"
           name="website"
@@ -129,8 +135,9 @@ export default function NewInitiativePage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-red-700 text-white py-2.5 rounded font-semibold disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-1.5 bg-teal-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50"
         >
+          <IconHeartHandshake size={18} stroke={1.75} />
           {submitting ? "Publicando..." : "Publicar"}
         </button>
       </form>
