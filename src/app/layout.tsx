@@ -57,6 +57,9 @@ export default function RootLayout({
               <span aria-hidden="true">🇻🇪</span> Ayuda Terremoto Venezuela
             </a>
             <div className="flex items-center gap-3 shrink-0 text-sm">
+              <a href="/ubicados" className="underline whitespace-nowrap">
+                Ubicados
+              </a>
               <a href="/como-funciona" className="underline whitespace-nowrap">
                 Cómo funciona
               </a>

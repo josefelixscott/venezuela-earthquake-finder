@@ -5,10 +5,12 @@ import {
   IconCheck,
   IconHeartHandshake,
   IconArrowRight,
+  IconBuildingHospital,
 } from "@tabler/icons-react";
 import { getEnv } from "@/lib/cloudflare";
 import { getPostStats } from "@/lib/postStats";
 import { getInitiativeCount } from "@/lib/initiativeStats";
+import { getLocatedCount } from "@/lib/locatedStats";
 import { formatRelativeTime } from "@/lib/relativeTime";
 import { getStateFlag } from "@/lib/flags";
 import AvatarInitials from "@/components/AvatarInitials";
@@ -54,9 +56,10 @@ async function getLatestInitiatives(): Promise<LatestInitiative[]> {
 }
 
 export default async function HubPage() {
-  const [stats, initiativeCount, latestPosts, latestInitiatives] = await Promise.all([
+  const [stats, initiativeCount, locatedCount, latestPosts, latestInitiatives] = await Promise.all([
     getPostStats(),
     getInitiativeCount(),
+    getLocatedCount(),
     getLatestPosts(),
     getLatestInitiatives(),
   ]);
@@ -101,6 +104,14 @@ export default async function HubPage() {
         </p>
       </div>
 
+      <div className="bg-blue-50 rounded-lg p-3 flex items-center gap-3">
+        <IconBuildingHospital size={22} stroke={1.75} className="text-blue-800 shrink-0" />
+        <p className="text-sm text-blue-800">
+          <span className="text-lg font-medium">{locatedCount}</span> personas ubicadas en
+          hospitales y centros
+        </p>
+      </div>
+
       <div className="flex gap-2">
         <a
           href="/personas"
@@ -116,6 +127,13 @@ export default async function HubPage() {
         </a>
       </div>
 
+      <a
+        href="/ubicados"
+        className="flex items-center justify-center gap-1.5 text-center bg-blue-800 text-white py-3 rounded-lg font-medium text-sm"
+      >
+        <IconBuildingHospital size={18} stroke={1.75} /> Ver personas ubicadas
+      </a>
+
       <div className="flex gap-2">
         <a
           href="/new"
@@ -130,6 +148,13 @@ export default async function HubPage() {
           + Publicar iniciativa
         </a>
       </div>
+
+      <a
+        href="/ubicados/nueva"
+        className="flex items-center justify-center text-center bg-blue-50 text-blue-800 py-2.5 rounded-lg font-medium text-sm"
+      >
+        + Publicar lista de personas ubicadas
+      </a>
 
       <form action="/personas" className="flex gap-2">
         <input

@@ -25,6 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/iniciativas`, changeFrequency: "hourly", priority: 0.9 },
     { url: `${SITE_URL}/new`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/iniciativas/nueva`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/ubicados`, changeFrequency: "hourly", priority: 0.8 },
+    { url: `${SITE_URL}/ubicados/nueva`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/como-funciona`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/como-ayudar`, changeFrequency: "monthly", priority: 0.4 },
   ];

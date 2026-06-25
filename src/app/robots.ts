@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/edit/", "/iniciativas/editar/", "/api/"],
+        disallow: ["/edit/", "/iniciativas/editar/", "/ubicados/editar/", "/api/"],
       },
     ],
     sitemap: "https://terremotovenezuela2026.com/sitemap.xml",
