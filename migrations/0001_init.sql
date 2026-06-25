@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS posts (
   last_known_location TEXT NOT NULL,
   description TEXT,
   contact_info TEXT NOT NULL,
-  photo_key TEXT,
   status TEXT NOT NULL DEFAULT 'looking',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

@@ -67,11 +67,6 @@ export default function NewPostPage() {
             className="w-full border rounded px-3 py-2"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Photo</label>
-          <input name="photo" type="file" accept="image/*" className="w-full" />
-        </div>
-
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
         <button

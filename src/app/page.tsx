@@ -10,7 +10,6 @@ interface PostRow {
   last_known_location: string;
   description: string | null;
   contact_info: string;
-  photo_key: string | null;
   status: string;
   created_at: string;
 }
@@ -73,16 +72,7 @@ export default async function HomePage({
                 href={`/posts/${post.id}`}
                 className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
               >
-                {post.photo_key ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`/api/photos/${post.photo_key}`}
-                    alt={post.name}
-                    className="w-16 h-16 object-cover rounded shrink-0"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
-                )}
+                <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{post.name}</span>

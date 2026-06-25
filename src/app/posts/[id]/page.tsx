@@ -11,7 +11,6 @@ interface PostRow {
   last_known_location: string;
   description: string | null;
   contact_info: string;
-  photo_key: string | null;
   status: string;
   created_at: string;
 }
@@ -47,14 +46,6 @@ export default async function PostDetailPage({
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="border rounded p-4 bg-white">
-        {post.photo_key && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={`/api/photos/${post.photo_key}`}
-            alt={post.name}
-            className="w-full max-h-80 object-cover rounded mb-3"
-          />
-        )}
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold">{post.name}</h1>
           {post.age && <span className="text-neutral-500">{post.age}</span>}
