@@ -13,10 +13,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://terremotovenezuela2026.com";
+const SITE_NAME = "Ayuda Terremoto Venezuela";
+const SITE_DESCRIPTION =
+  "Un espacio comunitario y gratuito para encontrar personas desaparecidas, publicar y descubrir iniciativas de ayuda tras el terremoto en Venezuela.";
+
 export const metadata: Metadata = {
-  title: "Ayuda Afectados Terremoto 2026 en Venezuela",
-  description:
-    "Un espacio para encontrar personas desaparecidas, publicar y descubrir iniciativas de ayuda tras el terremoto en Venezuela.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Ayuda Afectados Terremoto 2026 en Venezuela",
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "es_VE",
+    title: "Ayuda Afectados Terremoto 2026 en Venezuela",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary",
+    title: "Ayuda Afectados Terremoto 2026 en Venezuela",
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

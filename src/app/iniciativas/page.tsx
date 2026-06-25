@@ -6,6 +6,14 @@ import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 import { getInitiativeCount } from "@/lib/initiativeStats";
 import { getStateFlag } from "@/lib/flags";
 import InitiativeIcon from "@/components/InitiativeIcon";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Iniciativas de ayuda",
+  description:
+    "Centros de acopio, donaciones, refugios, transporte y voluntariado organizados por la comunidad tras el terremoto en Venezuela.",
+  alternates: { canonical: "/iniciativas" },
+};
 
 export const dynamic = "force-dynamic";
 

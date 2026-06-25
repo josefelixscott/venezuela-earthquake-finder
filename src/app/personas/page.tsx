@@ -12,6 +12,14 @@ import { getPostStats } from "@/lib/postStats";
 import { getStateFlag } from "@/lib/flags";
 import AvatarInitials from "@/components/AvatarInitials";
 import StatusPill from "@/components/StatusPill";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Personas desaparecidas",
+  description:
+    "Busca o publica sobre personas desaparecidas tras el terremoto en Venezuela. Filtra por estado y nombre para ayudar a reconectar familias.",
+  alternates: { canonical: "/personas" },
+};
 
 export const dynamic = "force-dynamic";
 
