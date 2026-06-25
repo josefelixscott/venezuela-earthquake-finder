@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -47,6 +48,19 @@ export default function NewPostPage() {
         <div>
           <label className="block text-sm font-medium mb-1">Edad</label>
           <input name="age" className="w-full border rounded px-3 py-2" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Estado *</label>
+          <select name="state" required defaultValue="" className="w-full border rounded px-3 py-2">
+            <option value="" disabled>
+              Selecciona un estado
+            </option>
+            {VENEZUELA_STATES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Última ubicación conocida *</label>

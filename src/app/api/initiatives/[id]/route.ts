@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/cloudflare";
 import { VALID_CATEGORIES, normalizeLink } from "../route";
+import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
 interface InitiativeRow {
   id: string;
@@ -10,6 +11,7 @@ interface InitiativeRow {
   description: string | null;
   contact_info: string;
   link: string | null;
+  state: string | null;
   created_at: string;
 }
 
@@ -21,7 +23,7 @@ export async function GET(
   const { DB } = await getEnv();
 
   const initiative = await DB.prepare(
-    `SELECT id, title, category, location, description, contact_info, link, created_at
+    `SELECT id, title, category, location, description, contact_info, link, state, created_at
      FROM initiatives WHERE id = ?1`
   )
     .bind(id)
@@ -42,6 +44,7 @@ interface PatchBody {
   description?: string | null;
   contactInfo?: string;
   link?: string | null;
+  state?: string | null;
 }
 
 export async function PATCH(
@@ -74,6 +77,7 @@ export async function PATCH(
     body.category && VALID_CATEGORIES.includes(body.category) ? body.category : null;
 
   const link = normalizeLink(body.link);
+  const state = body.state && INITIATIVE_STATE_OPTIONS.includes(body.state) ? body.state : null;
 
   await DB.prepare(
     `UPDATE initiatives SET
@@ -82,8 +86,9 @@ export async function PATCH(
        location = COALESCE(?3, location),
        description = ?4,
        contact_info = COALESCE(?5, contact_info),
-       link = ?6
-     WHERE id = ?7`
+       link = ?6,
+       state = ?7
+     WHERE id = ?8`
   )
     .bind(
       title || null,
@@ -92,6 +97,7 @@ export async function PATCH(
       body.description?.trim() || null,
       contactInfo || null,
       link,
+      state,
       id
     )
     .run();

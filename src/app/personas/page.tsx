@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getEnv } from "@/lib/cloudflare";
+import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
+  state: string | null;
   status: string;
   created_at: string;
   last_confirmed_at: string;
@@ -17,39 +19,44 @@ interface PostRow {
 const STALE_AFTER_DAYS = 7;
 const HIDE_AFTER_DAYS = 30;
 
-async function getPosts(q?: string): Promise<PostRow[]> {
+async function getPosts(q?: string, state?: string): Promise<PostRow[]> {
   const { DB } = await getEnv();
   // contact_info is intentionally excluded from every public listing query.
   // Posts unconfirmed for HIDE_AFTER_DAYS drop out of the default list (but the
   // direct link still works) so volunteers stop spending time on stale leads.
-  const columns = "id, name, age, last_known_location, description, status, created_at, last_confirmed_at";
+  const columns =
+    "id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at";
+
+  const conditions = [
+    `(status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))`,
+  ];
+  const params: string[] = [];
+
   if (q) {
+    conditions.push("(name LIKE ? OR last_known_location LIKE ? OR description LIKE ?)");
     const like = `%${q}%`;
-    const result = await DB.prepare(
-      `SELECT ${columns} FROM posts
-       WHERE (name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1)
-         AND (status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))
-       ORDER BY created_at DESC LIMIT 200`
-    )
-      .bind(like)
-      .all<PostRow>();
-    return result.results;
+    params.push(like, like, like);
   }
+  if (state) {
+    conditions.push("state = ?");
+    params.push(state);
+  }
+
   const result = await DB.prepare(
-    `SELECT ${columns} FROM posts
-     WHERE status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days')
-     ORDER BY created_at DESC LIMIT 200`
-  ).all<PostRow>();
+    `SELECT ${columns} FROM posts WHERE ${conditions.join(" AND ")} ORDER BY created_at DESC LIMIT 200`
+  )
+    .bind(...params)
+    .all<PostRow>();
   return result.results;
 }
 
 export default async function PersonasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; state?: string }>;
 }) {
-  const { q } = await searchParams;
-  const posts = await getPosts(q);
+  const { q, state } = await searchParams;
+  const posts = await getPosts(q, state);
 
   return (
     <div className="space-y-6">
@@ -70,14 +77,26 @@ export default async function PersonasPage({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <form className="flex gap-2 flex-1 min-w-[200px]">
+        <form className="flex flex-wrap gap-2 flex-1 min-w-[200px]">
           <input
             type="text"
             name="q"
             defaultValue={q ?? ""}
             placeholder="Buscar por nombre o ubicación..."
-            className="flex-1 border rounded px-3 py-2"
+            className="flex-1 min-w-[150px] border rounded px-3 py-2"
           />
+          <select
+            name="state"
+            defaultValue={state ?? ""}
+            className="border rounded px-3 py-2"
+          >
+            <option value="">Todos los estados</option>
+            {VENEZUELA_STATES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
           <button type="submit" className="bg-neutral-800 text-white px-4 py-2 rounded">
             Buscar
           </button>
@@ -102,7 +121,7 @@ export default async function PersonasPage({
 
       {posts.length === 0 ? (
         <p className="text-neutral-500 text-center py-12">
-          {q
+          {q || state
             ? "No se encontraron publicaciones."
             : "Aún no hay publicaciones. Sé el primero en publicar."}
         </p>
@@ -136,7 +155,10 @@ export default async function PersonasPage({
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-neutral-600">{post.last_known_location}</div>
+                    <div className="text-sm text-neutral-600">
+                      {post.state && <span className="font-medium">{post.state} — </span>}
+                      {post.last_known_location}
+                    </div>
                     {post.description && (
                       <div className="text-sm text-neutral-500 truncate">{post.description}</div>
                     )}

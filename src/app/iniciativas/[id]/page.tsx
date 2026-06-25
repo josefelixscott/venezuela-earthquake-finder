@@ -12,6 +12,7 @@ interface InitiativeRow {
   description: string | null;
   contact_info: string;
   link: string | null;
+  state: string | null;
   created_at: string;
 }
 
@@ -24,7 +25,7 @@ export default async function InitiativeDetailPage({
   const { DB } = await getEnv();
 
   const initiative = await DB.prepare(
-    `SELECT id, title, category, location, description, contact_info, link, created_at
+    `SELECT id, title, category, location, description, contact_info, link, state, created_at
      FROM initiatives WHERE id = ?1`
   )
     .bind(id)
@@ -46,6 +47,11 @@ export default async function InitiativeDetailPage({
             {CATEGORY_LABELS[initiative.category] ?? initiative.category}
           </span>
         </div>
+        {initiative.state && (
+          <p className="text-neutral-700 mt-1">
+            <span className="font-medium">Estado:</span> {initiative.state}
+          </p>
+        )}
         <p className="text-neutral-700 mt-1">
           <span className="font-medium">Ubicación:</span> {initiative.location}
         </p>

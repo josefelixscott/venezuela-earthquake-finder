@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CATEGORY_OPTIONS } from "@/lib/initiativeCategories";
+import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
 export default function NewInitiativePage() {
   const router = useRouter();
@@ -60,6 +61,19 @@ export default function NewInitiativePage() {
             {CATEGORY_OPTIONS.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Estado *</label>
+          <select name="state" required defaultValue="" className="w-full border rounded px-3 py-2">
+            <option value="" disabled>
+              Selecciona un estado
+            </option>
+            {INITIATIVE_STATE_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s}
               </option>
             ))}
           </select>

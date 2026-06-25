@@ -8,6 +8,7 @@ interface PostRow {
   last_known_location: string;
   description: string | null;
   contact_info: string;
+  state: string | null;
   status: string;
   created_at: string;
   last_confirmed_at: string;
@@ -21,6 +22,7 @@ function toCsv(rows: PostRow[]): string {
     "last_known_location",
     "description",
     "contact_info",
+    "state",
     "status",
     "created_at",
     "last_confirmed_at",
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
   const format = request.nextUrl.searchParams.get("format") === "csv" ? "csv" : "json";
 
   const result = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, contact_info, status, created_at, last_confirmed_at
+    `SELECT id, name, age, last_known_location, description, contact_info, state, status, created_at, last_confirmed_at
      FROM posts ORDER BY created_at DESC`
   ).all<PostRow>();
 

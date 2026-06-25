@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/cloudflare";
+import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
 export const VALID_CATEGORIES = [
   "centro_de_acopio",
@@ -18,6 +19,7 @@ interface InitiativeRow {
   description: string | null;
   contact_info: string;
   link: string | null;
+  state: string | null;
   created_at: string;
 }
 
@@ -39,23 +41,29 @@ export function normalizeLink(raw: string | null | undefined): string | null {
 export async function GET(request: NextRequest) {
   const { DB } = await getEnv();
   const q = request.nextUrl.searchParams.get("q")?.trim();
+  const state = request.nextUrl.searchParams.get("state")?.trim();
+  const columns = "id, title, category, location, description, contact_info, link, state, created_at";
 
-  let result;
+  const conditions: string[] = [];
+  const params: string[] = [];
+
   if (q) {
+    conditions.push("(title LIKE ? OR location LIKE ? OR description LIKE ?)");
     const like = `%${q}%`;
-    result = await DB.prepare(
-      `SELECT id, title, category, location, description, contact_info, link, created_at FROM initiatives
-       WHERE title LIKE ?1 OR location LIKE ?1 OR description LIKE ?1
-       ORDER BY created_at DESC LIMIT 200`
-    )
-      .bind(like)
-      .all<InitiativeRow>();
-  } else {
-    result = await DB.prepare(
-      `SELECT id, title, category, location, description, contact_info, link, created_at FROM initiatives
-       ORDER BY created_at DESC LIMIT 200`
-    ).all<InitiativeRow>();
+    params.push(like, like, like);
   }
+  if (state) {
+    conditions.push("state = ?");
+    params.push(state);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const result = await DB.prepare(
+    `SELECT ${columns} FROM initiatives ${where} ORDER BY created_at DESC LIMIT 200`
+  )
+    .bind(...params)
+    .all<InitiativeRow>();
 
   return NextResponse.json({ initiatives: result.results });
 }
@@ -77,6 +85,8 @@ export async function POST(request: NextRequest) {
   const description = (formData.get("description") as string)?.trim() || null;
   const contactInfo = (formData.get("contactInfo") as string)?.trim();
   const link = normalizeLink(formData.get("link") as string | null);
+  const stateRaw = (formData.get("state") as string)?.trim();
+  const state = INITIATIVE_STATE_OPTIONS.includes(stateRaw) ? stateRaw : null;
 
   if (!title || !location || !contactInfo) {
     return NextResponse.json(
@@ -92,10 +102,10 @@ export async function POST(request: NextRequest) {
   const editToken = crypto.randomUUID();
 
   await DB.prepare(
-    `INSERT INTO initiatives (id, title, category, location, description, contact_info, link, edit_token)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+    `INSERT INTO initiatives (id, title, category, location, description, contact_info, link, state, edit_token)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`
   )
-    .bind(id, title, finalCategory, location, description, contactInfo, link, editToken)
+    .bind(id, title, finalCategory, location, description, contactInfo, link, state, editToken)
     .run();
 
   return NextResponse.json({ id, editToken }, { status: 201 });

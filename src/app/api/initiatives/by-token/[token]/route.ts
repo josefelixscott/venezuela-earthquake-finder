@@ -9,6 +9,7 @@ interface InitiativeRow {
   description: string | null;
   contact_info: string;
   link: string | null;
+  state: string | null;
   created_at: string;
 }
 
@@ -20,7 +21,7 @@ export async function GET(
   const { DB } = await getEnv();
 
   const initiative = await DB.prepare(
-    `SELECT id, title, category, location, description, contact_info, link, created_at
+    `SELECT id, title, category, location, description, contact_info, link, state, created_at
      FROM initiatives WHERE edit_token = ?1`
   )
     .bind(token)

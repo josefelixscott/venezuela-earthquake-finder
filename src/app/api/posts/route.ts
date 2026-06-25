@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/cloudflare";
+import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 interface PostRow {
   id: string;
@@ -7,6 +8,7 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
+  state: string | null;
   status: string;
   created_at: string;
   last_confirmed_at: string;
@@ -17,28 +19,29 @@ const HIDE_AFTER_DAYS = 30;
 export async function GET(request: NextRequest) {
   const { DB } = await getEnv();
   const q = request.nextUrl.searchParams.get("q")?.trim();
+  const state = request.nextUrl.searchParams.get("state")?.trim();
   // contact_info is intentionally excluded from this public endpoint.
   const columns =
-    "id, name, age, last_known_location, description, status, created_at, last_confirmed_at";
+    "id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at";
 
-  let result;
+  const conditions = ["(status = 'found' OR last_confirmed_at >= datetime('now', '-" + HIDE_AFTER_DAYS + " days'))"];
+  const params: string[] = [];
+
   if (q) {
+    conditions.push("(name LIKE ? OR last_known_location LIKE ? OR description LIKE ?)");
     const like = `%${q}%`;
-    result = await DB.prepare(
-      `SELECT ${columns} FROM posts
-       WHERE (name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1)
-         AND (status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))
-       ORDER BY created_at DESC LIMIT 200`
-    )
-      .bind(like)
-      .all<PostRow>();
-  } else {
-    result = await DB.prepare(
-      `SELECT ${columns} FROM posts
-       WHERE status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days')
-       ORDER BY created_at DESC LIMIT 200`
-    ).all<PostRow>();
+    params.push(like, like, like);
   }
+  if (state) {
+    conditions.push("state = ?");
+    params.push(state);
+  }
+
+  const result = await DB.prepare(
+    `SELECT ${columns} FROM posts WHERE ${conditions.join(" AND ")} ORDER BY created_at DESC LIMIT 200`
+  )
+    .bind(...params)
+    .all<PostRow>();
 
   return NextResponse.json({ posts: result.results });
 }
@@ -56,6 +59,8 @@ export async function POST(request: NextRequest) {
   const lastKnownLocation = (formData.get("lastKnownLocation") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const contactInfo = (formData.get("contactInfo") as string)?.trim();
+  const stateRaw = (formData.get("state") as string)?.trim();
+  const state = VENEZUELA_STATES.includes(stateRaw) ? stateRaw : null;
 
   if (!name || !lastKnownLocation || !contactInfo) {
     return NextResponse.json(
@@ -69,10 +74,10 @@ export async function POST(request: NextRequest) {
   const editToken = crypto.randomUUID();
 
   await DB.prepare(
-    `INSERT INTO posts (id, name, age, last_known_location, description, contact_info, edit_token)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+    `INSERT INTO posts (id, name, age, last_known_location, description, contact_info, state, edit_token)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
   )
-    .bind(id, name, age, lastKnownLocation, description, contactInfo, editToken)
+    .bind(id, name, age, lastKnownLocation, description, contactInfo, state, editToken)
     .run();
 
   return NextResponse.json({ id, editToken }, { status: 201 });

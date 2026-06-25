@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 interface PostRow {
   id: string;
@@ -10,6 +11,7 @@ interface PostRow {
   last_known_location: string;
   description: string | null;
   contact_info: string;
+  state: string | null;
   status: string;
   created_at: string;
   last_confirmed_at: string;
@@ -83,6 +85,7 @@ export default function EditPostPage() {
       lastKnownLocation: formData.get("lastKnownLocation"),
       description: formData.get("description"),
       contactInfo: formData.get("contactInfo"),
+      state: formData.get("state"),
     };
 
     try {
@@ -193,7 +196,7 @@ export default function EditPostPage() {
 
       <form onSubmit={handleSave} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Estado</label>
+          <label className="block text-sm font-medium mb-1">Estado de la búsqueda</label>
           <select
             name="status"
             defaultValue={post.status}
@@ -201,6 +204,24 @@ export default function EditPostPage() {
           >
             <option value="looking">Buscando</option>
             <option value="found">Encontrado/a</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Estado (Venezuela) *</label>
+          <select
+            name="state"
+            required
+            defaultValue={post.state ?? ""}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="" disabled>
+              Selecciona un estado
+            </option>
+            {VENEZUELA_STATES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
           </select>
         </div>
         <div>

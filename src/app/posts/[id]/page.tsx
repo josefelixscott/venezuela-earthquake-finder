@@ -10,6 +10,7 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
+  state: string | null;
   status: string;
   created_at: string;
   last_confirmed_at: string;
@@ -43,7 +44,7 @@ export default async function PostDetailPage({
   // contact_info is intentionally excluded: contact only happens through the reply
   // relay below, never by exposing a phone number/address directly on a public page.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, status, created_at, last_confirmed_at
+    `SELECT id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at
      FROM posts WHERE id = ?1`
   )
     .bind(id)
@@ -76,6 +77,11 @@ export default async function PostDetailPage({
             </span>
           )}
         </div>
+        {post.state && (
+          <p className="text-neutral-700 mt-1">
+            <span className="font-medium">Estado:</span> {post.state}
+          </p>
+        )}
         <p className="text-neutral-700 mt-1">
           <span className="font-medium">Última ubicación conocida:</span>{" "}
           {post.last_known_location}

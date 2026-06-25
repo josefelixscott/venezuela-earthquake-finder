@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/cloudflare";
+import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 
 interface PostRow {
   id: string;
@@ -7,6 +8,7 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
+  state: string | null;
   status: string;
   created_at: string;
   last_confirmed_at: string;
@@ -30,7 +32,7 @@ export async function GET(
 
   // contact_info is intentionally never returned from this public endpoint.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, status, created_at, last_confirmed_at
+    `SELECT id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at
      FROM posts WHERE id = ?1`
   )
     .bind(id)
@@ -56,6 +58,7 @@ interface PatchBody {
   lastKnownLocation?: string;
   description?: string | null;
   contactInfo?: string;
+  state?: string | null;
   confirm?: boolean;
 }
 
@@ -92,6 +95,7 @@ export async function PATCH(
   const name = body.name?.trim();
   const lastKnownLocation = body.lastKnownLocation?.trim();
   const contactInfo = body.contactInfo?.trim();
+  const state = body.state && VENEZUELA_STATES.includes(body.state) ? body.state : null;
 
   // Any save from the owner (including an explicit "confirm") counts as confirming
   // the post is still accurate, which resets the staleness clock.
@@ -103,8 +107,9 @@ export async function PATCH(
        last_known_location = COALESCE(?4, last_known_location),
        description = ?5,
        contact_info = COALESCE(?6, contact_info),
+       state = ?7,
        last_confirmed_at = datetime('now')
-     WHERE id = ?7`
+     WHERE id = ?8`
   )
     .bind(
       body.status ?? null,
@@ -113,6 +118,7 @@ export async function PATCH(
       lastKnownLocation || null,
       body.description?.trim() || null,
       contactInfo || null,
+      state,
       id
     )
     .run();

@@ -3,6 +3,7 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CATEGORY_OPTIONS } from "@/lib/initiativeCategories";
+import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
 interface InitiativeRow {
   id: string;
@@ -12,6 +13,7 @@ interface InitiativeRow {
   description: string | null;
   contact_info: string;
   link: string | null;
+  state: string | null;
   created_at: string;
 }
 
@@ -60,6 +62,7 @@ export default function EditInitiativePage() {
       description: formData.get("description"),
       contactInfo: formData.get("contactInfo"),
       link: formData.get("link"),
+      state: formData.get("state"),
     };
 
     try {
@@ -166,6 +169,24 @@ export default function EditInitiativePage() {
             {CATEGORY_OPTIONS.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Estado *</label>
+          <select
+            name="state"
+            required
+            defaultValue={initiative.state ?? ""}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="" disabled>
+              Selecciona un estado
+            </option>
+            {INITIATIVE_STATE_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s}
               </option>
             ))}
           </select>

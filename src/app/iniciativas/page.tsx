@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getEnv } from "@/lib/cloudflare";
 import { CATEGORY_LABELS } from "@/lib/initiativeCategories";
+import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
 
 export const dynamic = "force-dynamic";
 
@@ -10,36 +11,44 @@ interface InitiativeRow {
   category: string;
   location: string;
   description: string | null;
+  state: string | null;
   created_at: string;
 }
 
-async function getInitiatives(q?: string): Promise<InitiativeRow[]> {
+async function getInitiatives(q?: string, state?: string): Promise<InitiativeRow[]> {
   const { DB } = await getEnv();
-  const columns = "id, title, category, location, description, created_at";
+  const columns = "id, title, category, location, description, state, created_at";
+
+  const conditions: string[] = [];
+  const params: string[] = [];
+
   if (q) {
+    conditions.push("(title LIKE ? OR location LIKE ? OR description LIKE ?)");
     const like = `%${q}%`;
-    const result = await DB.prepare(
-      `SELECT ${columns} FROM initiatives
-       WHERE title LIKE ?1 OR location LIKE ?1 OR description LIKE ?1
-       ORDER BY created_at DESC LIMIT 200`
-    )
-      .bind(like)
-      .all<InitiativeRow>();
-    return result.results;
+    params.push(like, like, like);
   }
+  if (state) {
+    conditions.push("state = ?");
+    params.push(state);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
   const result = await DB.prepare(
-    `SELECT ${columns} FROM initiatives ORDER BY created_at DESC LIMIT 200`
-  ).all<InitiativeRow>();
+    `SELECT ${columns} FROM initiatives ${where} ORDER BY created_at DESC LIMIT 200`
+  )
+    .bind(...params)
+    .all<InitiativeRow>();
   return result.results;
 }
 
 export default async function InitiativesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; state?: string }>;
 }) {
-  const { q } = await searchParams;
-  const initiatives = await getInitiatives(q);
+  const { q, state } = await searchParams;
+  const initiatives = await getInitiatives(q, state);
 
   return (
     <div className="space-y-6">
@@ -56,14 +65,26 @@ export default async function InitiativesPage({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <form className="flex gap-2 flex-1 min-w-[200px]">
+        <form className="flex flex-wrap gap-2 flex-1 min-w-[200px]">
           <input
             type="text"
             name="q"
             defaultValue={q ?? ""}
             placeholder="Buscar por nombre o ubicación..."
-            className="flex-1 border rounded px-3 py-2"
+            className="flex-1 min-w-[150px] border rounded px-3 py-2"
           />
+          <select
+            name="state"
+            defaultValue={state ?? ""}
+            className="border rounded px-3 py-2"
+          >
+            <option value="">Todos los estados</option>
+            {INITIATIVE_STATE_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
           <button type="submit" className="bg-neutral-800 text-white px-4 py-2 rounded">
             Buscar
           </button>
@@ -88,7 +109,7 @@ export default async function InitiativesPage({
 
       {initiatives.length === 0 ? (
         <p className="text-neutral-500 text-center py-12">
-          {q ? "No se encontraron iniciativas." : "Aún no hay iniciativas publicadas."}
+          {q || state ? "No se encontraron iniciativas." : "Aún no hay iniciativas publicadas."}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -104,7 +125,10 @@ export default async function InitiativesPage({
                     {CATEGORY_LABELS[initiative.category] ?? initiative.category}
                   </span>
                 </div>
-                <div className="text-sm text-neutral-600">{initiative.location}</div>
+                <div className="text-sm text-neutral-600">
+                  {initiative.state && <span className="font-medium">{initiative.state} — </span>}
+                  {initiative.location}
+                </div>
                 {initiative.description && (
                   <div className="text-sm text-neutral-500 truncate">
                     {initiative.description}
