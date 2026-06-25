@@ -1,4 +1,4 @@
-import { IconBuildingHospital, IconArrowLeft, IconAlertTriangle } from "@tabler/icons-react";
+import { IconBuildingHospital, IconArrowLeft } from "@tabler/icons-react";
 import { getEnv } from "@/lib/cloudflare";
 import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
 import { getLocatedCount } from "@/lib/locatedStats";
@@ -74,15 +74,6 @@ export default async function UbicadosPage({
         <p className="text-neutral-600 mt-1">
           Listas de personas registradas en hospitales, refugios y otros lugares tras el
           terremoto.
-        </p>
-      </div>
-
-      <div className="bg-amber-50 rounded-lg p-3 text-sm text-amber-900 flex items-start gap-2">
-        <IconAlertTriangle size={18} className="shrink-0 mt-0.5" />
-        <p>
-          El estado de cada persona (con vida o no) <strong>no está confirmado</strong>. Esta
-          lista solo indica que el nombre fue registrado en el lugar señalado. Verifica
-          directamente con el lugar antes de sacar conclusiones.
         </p>
       </div>
 
