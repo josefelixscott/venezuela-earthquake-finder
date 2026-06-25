@@ -19,6 +19,7 @@ interface LocatedPersonRow {
   id: string;
   name: string;
   age: string | null;
+  cedula: string | null;
   location_name: string;
   state: string | null;
   notes: string | null;
@@ -31,9 +32,9 @@ async function getLocatedPersons(q?: string, state?: string): Promise<LocatedPer
   const params: string[] = [];
 
   if (q) {
-    conditions.push("(name LIKE ? OR location_name LIKE ?)");
+    conditions.push("(name LIKE ? OR location_name LIKE ? OR cedula LIKE ?)");
     const like = `%${q}%`;
-    params.push(like, like);
+    params.push(like, like, like);
   }
   if (state) {
     conditions.push("state = ?");
@@ -43,7 +44,7 @@ async function getLocatedPersons(q?: string, state?: string): Promise<LocatedPer
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
   const result = await DB.prepare(
-    `SELECT id, name, age, location_name, state, notes, created_at FROM located_persons
+    `SELECT id, name, age, cedula, location_name, state, notes, created_at FROM located_persons
      ${where} ORDER BY created_at DESC LIMIT 500`
   )
     .bind(...params)
@@ -98,7 +99,7 @@ export default async function UbicadosPage({
             type="text"
             name="q"
             defaultValue={q ?? ""}
-            placeholder="Buscar por nombre o lugar..."
+            placeholder="Buscar por nombre, cédula o lugar..."
             className="flex-1 min-w-[150px] border rounded px-3 py-2"
           />
           <select name="state" defaultValue={state ?? ""} className="border rounded px-3 py-2">
@@ -139,6 +140,11 @@ export default async function UbicadosPage({
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{person.name}</span>
                   {person.age && <span className="text-sm text-neutral-500">{person.age}</span>}
+                  {person.cedula && (
+                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full whitespace-nowrap">
+                      C.I. {person.cedula}
+                    </span>
+                  )}
                 </div>
                 <div className="text-sm text-neutral-600 truncate">
                   {getStateFlag(person.state)} {person.state ? `${person.state} — ` : ""}

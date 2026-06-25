@@ -36,13 +36,14 @@ export async function POST(
 
   const statements = entries.map((entry) =>
     DB.prepare(
-      `INSERT INTO located_persons (id, batch_id, name, age, location_name, state, notes, contact_info, edit_token)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`
+      `INSERT INTO located_persons (id, batch_id, name, age, cedula, location_name, state, notes, contact_info, edit_token)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
     ).bind(
       crypto.randomUUID(),
       existing.batch_id,
       entry.name,
       entry.age,
+      entry.cedula,
       existing.location_name,
       existing.state,
       existing.notes,

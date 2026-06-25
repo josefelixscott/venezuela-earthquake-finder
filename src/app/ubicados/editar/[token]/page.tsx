@@ -14,6 +14,7 @@ interface LocatedPersonRow {
   id: string;
   name: string;
   age: string | null;
+  cedula: string | null;
   location_name: string;
   state: string | null;
   notes: string | null;
@@ -269,6 +270,11 @@ export default function EditLocatedListPage() {
               <div>
                 <span className="font-medium">{person.name}</span>
                 {person.age && <span className="text-sm text-neutral-500 ml-2">{person.age}</span>}
+                {person.cedula && (
+                  <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full ml-2">
+                    C.I. {person.cedula}
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => handleDeleteEntry(person.id)}
@@ -288,7 +294,7 @@ export default function EditLocatedListPage() {
             name="newEntries"
             required
             rows={4}
-            placeholder={"Un nombre por línea, edad opcional después de una coma"}
+            placeholder={"Un nombre por línea, edad o cédula opcional después de una coma"}
             className="w-full border rounded px-3 py-2 text-sm font-mono"
           />
           <button

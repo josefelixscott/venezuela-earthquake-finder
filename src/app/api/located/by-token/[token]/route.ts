@@ -7,6 +7,7 @@ interface LocatedPersonRow {
   batch_id: string;
   name: string;
   age: string | null;
+  cedula: string | null;
   location_name: string;
   state: string | null;
   notes: string | null;
@@ -22,7 +23,7 @@ export async function GET(
   const { DB } = await getEnv();
 
   const result = await DB.prepare(
-    `SELECT id, batch_id, name, age, location_name, state, notes, contact_info, created_at
+    `SELECT id, batch_id, name, age, cedula, location_name, state, notes, contact_info, created_at
      FROM located_persons WHERE edit_token = ?1 ORDER BY created_at ASC`
   )
     .bind(token)

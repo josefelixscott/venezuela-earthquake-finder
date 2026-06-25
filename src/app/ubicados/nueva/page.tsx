@@ -80,11 +80,13 @@ export default function NewLocatedListPage() {
             name="entries"
             required
             rows={10}
-            placeholder={"Un nombre por línea. Edad opcional después de una coma:\nVilchez Brayan, 23 años\nFuentes Alberto, 52 años\nPerez Francisca"}
+            placeholder={"Un nombre por línea. Edad o cédula opcional después de una coma:\nVilchez Brayan, 23 años\nManuel Gomez, 19814839\nPerez Francisca"}
             className="w-full border rounded px-3 py-2 font-mono text-sm"
           />
           <p className="text-xs text-neutral-500 mt-1">
-            Un nombre por línea. Puedes agregar la edad después de una coma.
+            Un nombre por línea. Si agregas un número de 5 o más cifras lo identificamos
+            automáticamente como cédula; si no, lo tratamos como edad. Para incluir ambos, usa:
+            Nombre, Edad, Cédula.
           </p>
         </div>
         <div>
