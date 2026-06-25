@@ -19,6 +19,29 @@ interface PostRow {
 const STALE_AFTER_DAYS = 7;
 const HIDE_AFTER_DAYS = 30;
 
+interface Stats {
+  total: number;
+  looking: number;
+  found: number;
+}
+
+async function getStats(): Promise<Stats> {
+  const { DB } = await getEnv();
+  const row = await DB.prepare(
+    `SELECT
+       COUNT(*) AS total,
+       SUM(CASE WHEN status = 'looking' THEN 1 ELSE 0 END) AS looking,
+       SUM(CASE WHEN status = 'found' THEN 1 ELSE 0 END) AS found
+     FROM posts`
+  ).first<{ total: number; looking: number | null; found: number | null }>();
+
+  return {
+    total: row?.total ?? 0,
+    looking: row?.looking ?? 0,
+    found: row?.found ?? 0,
+  };
+}
+
 async function getPosts(q?: string, state?: string): Promise<PostRow[]> {
   const { DB } = await getEnv();
   // contact_info is intentionally excluded from every public listing query.
@@ -56,13 +79,28 @@ export default async function PersonasPage({
   searchParams: Promise<{ q?: string; state?: string }>;
 }) {
   const { q, state } = await searchParams;
-  const posts = await getPosts(q, state);
+  const [posts, stats] = await Promise.all([getPosts(q, state), getStats()]);
 
   return (
     <div className="space-y-6">
       <a href="/" className="text-sm text-red-700 underline">
         Volver al inicio
       </a>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-neutral-100 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-neutral-800">{stats.total}</div>
+          <div className="text-xs text-neutral-600 mt-1">Personas registradas</div>
+        </div>
+        <div className="bg-red-50 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-red-700">{stats.looking}</div>
+          <div className="text-xs text-red-700 mt-1">Por localizar</div>
+        </div>
+        <div className="bg-green-50 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-green-700">{stats.found}</div>
+          <div className="text-xs text-green-700 mt-1">Localizadas</div>
+        </div>
+      </div>
 
       <div>
         <h1 className="text-2xl font-bold">Personas desaparecidas</h1>
