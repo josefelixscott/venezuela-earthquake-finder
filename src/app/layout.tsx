@@ -13,10 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title:
-    "Página para ayudar a encontrar personas desaparecidas por el terremoto de Junio 24 en Venezuela",
+  title: "Ayuda Afectados Terremoto 2026 en Venezuela",
   description:
-    "Un espacio para ayudar a reconectar a familias separadas por el terremoto en Venezuela.",
+    "Un espacio para encontrar personas desaparecidas, publicar y descubrir iniciativas de ayuda tras el terremoto en Venezuela.",
 };
 
 export default function RootLayout({
@@ -30,10 +29,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
-        <header className="bg-red-700 text-white px-4 py-3 shadow">
+        <header className="bg-blue-700 text-white px-4 py-3 shadow">
           <div className="max-w-3xl mx-auto flex items-center justify-between gap-2">
             <a href="/" className="font-bold text-lg">
-              Buscando Familia
+              Ayuda Terremoto Venezuela
             </a>
             <div className="flex items-center gap-3 shrink-0 text-sm">
               <a href="/como-funciona" className="underline whitespace-nowrap">

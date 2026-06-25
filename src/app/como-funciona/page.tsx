@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Cómo funciona — Buscando Familia",
+  title: "Cómo funciona — Ayuda Terremoto Venezuela",
 };
 
 export default function ComoFuncionaPage() {

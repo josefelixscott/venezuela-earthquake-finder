@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Recomendaciones — Buscando Familia",
+  title: "Recomendaciones — Ayuda Terremoto Venezuela",
 };
 
 export default function ComoAyudarPage() {

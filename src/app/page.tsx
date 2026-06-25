@@ -2,9 +2,8 @@ export default function HubPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div>
-        <p className="text-sm font-medium text-red-700">
-          Página para ayudar a encontrar personas desaparecidas por el terremoto de Junio 24 en
-          Venezuela
+        <p className="text-sm font-medium text-blue-700">
+          Ayuda Afectados Terremoto 2026 en Venezuela
         </p>
         <h1 className="text-2xl font-bold mt-1">¿Qué necesitas hacer?</h1>
         <p className="text-neutral-600 mt-1">
