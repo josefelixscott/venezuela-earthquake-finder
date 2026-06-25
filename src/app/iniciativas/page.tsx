@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getEnv } from "@/lib/cloudflare";
 import { CATEGORY_LABELS } from "@/lib/initiativeCategories";
 import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
+import { getInitiativeCount } from "@/lib/initiativeStats";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,10 @@ export default async function InitiativesPage({
   searchParams: Promise<{ q?: string; state?: string }>;
 }) {
   const { q, state } = await searchParams;
-  const initiatives = await getInitiatives(q, state);
+  const [initiatives, initiativeCount] = await Promise.all([
+    getInitiatives(q, state),
+    getInitiativeCount(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -62,6 +66,11 @@ export default async function InitiativesPage({
           Centros de acopio, donaciones, refugios, transporte y voluntariado organizados por la
           comunidad.
         </p>
+      </div>
+
+      <div className="bg-teal-50 rounded-lg p-3 text-center">
+        <div className="text-2xl font-bold text-teal-700">{initiativeCount}</div>
+        <div className="text-xs text-teal-700 mt-1">Iniciativas de ayuda activas</div>
       </div>
 
       <div className="flex flex-wrap gap-2">

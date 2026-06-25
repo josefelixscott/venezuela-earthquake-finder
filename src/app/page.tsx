@@ -1,9 +1,10 @@
 import { getPostStats } from "@/lib/postStats";
+import { getInitiativeCount } from "@/lib/initiativeStats";
 
 export const dynamic = "force-dynamic";
 
 export default async function HubPage() {
-  const stats = await getPostStats();
+  const [stats, initiativeCount] = await Promise.all([getPostStats(), getInitiativeCount()]);
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -30,6 +31,11 @@ export default async function HubPage() {
           <div className="text-2xl font-bold text-green-700">{stats.found}</div>
           <div className="text-xs text-green-700 mt-1">Localizadas</div>
         </div>
+      </div>
+
+      <div className="bg-teal-50 rounded-lg p-3 text-center">
+        <div className="text-2xl font-bold text-teal-700">{initiativeCount}</div>
+        <div className="text-xs text-teal-700 mt-1">Iniciativas de ayuda activas</div>
       </div>
 
       <form action="/personas" className="flex gap-2">
