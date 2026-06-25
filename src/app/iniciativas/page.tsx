@@ -43,6 +43,10 @@ export default async function InitiativesPage({
 
   return (
     <div className="space-y-6">
+      <a href="/" className="text-sm text-red-700 underline">
+        Volver al inicio
+      </a>
+
       <div>
         <h1 className="text-2xl font-bold">Iniciativas de ayuda</h1>
         <p className="text-neutral-600 mt-1">
@@ -71,6 +75,16 @@ export default async function InitiativesPage({
           + Publicar iniciativa
         </a>
       </div>
+
+      {q && (
+        <p className="text-sm text-neutral-500">
+          ¿Buscas a una persona desaparecida en lugar de una iniciativa?{" "}
+          <a href={`/personas?q=${encodeURIComponent(q)}`} className="text-red-700 underline">
+            Búscala aquí
+          </a>
+          .
+        </p>
+      )}
 
       {initiatives.length === 0 ? (
         <p className="text-neutral-500 text-center py-12">

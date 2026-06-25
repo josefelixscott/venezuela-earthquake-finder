@@ -1,76 +1,22 @@
-import Link from "next/link";
-import { getEnv } from "@/lib/cloudflare";
-
-export const dynamic = "force-dynamic";
-
-interface PostRow {
-  id: string;
-  name: string;
-  age: string | null;
-  last_known_location: string;
-  description: string | null;
-  status: string;
-  created_at: string;
-  last_confirmed_at: string;
-}
-
-const STALE_AFTER_DAYS = 7;
-const HIDE_AFTER_DAYS = 30;
-
-async function getPosts(q?: string): Promise<PostRow[]> {
-  const { DB } = await getEnv();
-  // contact_info is intentionally excluded from every public listing query.
-  // Posts unconfirmed for HIDE_AFTER_DAYS drop out of the default list (but the
-  // direct link still works) so volunteers stop spending time on stale leads.
-  const columns = "id, name, age, last_known_location, description, status, created_at, last_confirmed_at";
-  if (q) {
-    const like = `%${q}%`;
-    const result = await DB.prepare(
-      `SELECT ${columns} FROM posts
-       WHERE (name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1)
-         AND (status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))
-       ORDER BY created_at DESC LIMIT 200`
-    )
-      .bind(like)
-      .all<PostRow>();
-    return result.results;
-  }
-  const result = await DB.prepare(
-    `SELECT ${columns} FROM posts
-     WHERE status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days')
-     ORDER BY created_at DESC LIMIT 200`
-  ).all<PostRow>();
-  return result.results;
-}
-
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const { q } = await searchParams;
-  const posts = await getPosts(q);
-
+export default function HubPage() {
   return (
-    <div className="space-y-6">
+    <div className="max-w-md mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Buscando familia tras el terremoto</h1>
+        <p className="text-sm font-medium text-red-700">
+          Página para ayudar a encontrar personas desaparecidas por el terremoto de Junio 24 en
+          Venezuela
+        </p>
+        <h1 className="text-2xl font-bold mt-1">¿Qué necesitas hacer?</h1>
         <p className="text-neutral-600 mt-1">
-          Publica sobre un familiar desaparecido, o busca para ver si alguien ha publicado sobre
-          alguien que conoces.{" "}
-          <a href="/como-funciona" className="text-red-700 underline">
-            Ver cómo funciona
-          </a>
-          .
+          Elige una opción para buscar, publicar, o encontrar formas de ayudar.
         </p>
       </div>
 
-      <form className="flex gap-2">
+      <form action="/personas" className="flex gap-2">
         <input
           type="text"
           name="q"
-          defaultValue={q ?? ""}
-          placeholder="Buscar por nombre o ubicación..."
+          placeholder="Buscar por nombre, lugar o iniciativa..."
           className="flex-1 border rounded px-3 py-2"
         />
         <button type="submit" className="bg-neutral-800 text-white px-4 py-2 rounded">
@@ -78,53 +24,66 @@ export default async function HomePage({
         </button>
       </form>
 
-      {posts.length === 0 ? (
-        <p className="text-neutral-500 text-center py-12">
-          {q
-            ? "No se encontraron publicaciones."
-            : "Aún no hay publicaciones. Sé el primero en publicar."}
+      <div className="border rounded-lg bg-white p-5">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded bg-red-100 flex items-center justify-center shrink-0">
+            <span className="text-red-700 font-bold">P</span>
+          </div>
+          <h2 className="text-lg font-semibold">Personas desaparecidas</h2>
+        </div>
+        <p className="text-sm text-neutral-600 mb-4">
+          Busca a alguien o publica sobre un familiar que no encuentras.
         </p>
-      ) : (
-        <ul className="space-y-3">
-          {posts.map((post) => {
-            const daysSinceConfirmed = Math.floor(
-              (Date.now() - new Date(post.last_confirmed_at + "Z").getTime()) /
-                (1000 * 60 * 60 * 24)
-            );
-            const isStale = post.status === "looking" && daysSinceConfirmed >= STALE_AFTER_DAYS;
-            return (
-              <li key={post.id}>
-                <Link
-                  href={`/posts/${post.id}`}
-                  className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
-                >
-                  <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{post.name}</span>
-                      {post.age && <span className="text-sm text-neutral-500">{post.age}</span>}
-                      {post.status === "found" && (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                          Encontrado
-                        </span>
-                      )}
-                      {isStale && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          Sin confirmar
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-neutral-600">{post.last_known_location}</div>
-                    {post.description && (
-                      <div className="text-sm text-neutral-500 truncate">{post.description}</div>
-                    )}
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+        <div className="flex gap-2">
+          <a
+            href="/personas"
+            className="flex-1 text-center bg-red-50 text-red-700 border border-red-200 py-2.5 rounded font-medium"
+          >
+            Ver publicaciones
+          </a>
+          <a
+            href="/new"
+            className="flex-1 text-center bg-red-700 text-white py-2.5 rounded font-medium"
+          >
+            + Publicar
+          </a>
+        </div>
+      </div>
+
+      <div className="border rounded-lg bg-white p-5">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded bg-teal-100 flex items-center justify-center shrink-0">
+            <span className="text-teal-700 font-bold">I</span>
+          </div>
+          <h2 className="text-lg font-semibold">Iniciativas de ayuda</h2>
+        </div>
+        <p className="text-sm text-neutral-600 mb-4">
+          Centros de acopio, donaciones, refugios, transporte y voluntariado.
+        </p>
+        <div className="flex gap-2">
+          <a
+            href="/iniciativas"
+            className="flex-1 text-center bg-teal-50 text-teal-700 border border-teal-200 py-2.5 rounded font-medium"
+          >
+            Ver iniciativas
+          </a>
+          <a
+            href="/iniciativas/nueva"
+            className="flex-1 text-center bg-teal-700 text-white py-2.5 rounded font-medium"
+          >
+            + Publicar
+          </a>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-4 text-sm">
+        <a href="/como-funciona" className="text-neutral-500 underline">
+          Cómo funciona
+        </a>
+        <a href="/como-ayudar" className="text-neutral-500 underline">
+          Recomendaciones
+        </a>
+      </div>
     </div>
   );
 }

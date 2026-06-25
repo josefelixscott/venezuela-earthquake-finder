@@ -12,10 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_NAME = "Página para ayudar a encontrar personas desaparecidas por el terremoto de Junio 24 en Venezuela";
-
 export const metadata: Metadata = {
-  title: SITE_NAME,
+  title:
+    "Página para ayudar a encontrar personas desaparecidas por el terremoto de Junio 24 en Venezuela",
   description:
     "Un espacio para ayudar a reconectar a familias separadas por el terremoto en Venezuela.",
 };
@@ -32,25 +31,16 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
         <header className="bg-red-700 text-white px-4 py-3 shadow">
-          <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <a href="/" className="font-bold leading-snug">
-              {SITE_NAME}
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-2">
+            <a href="/" className="font-bold text-lg">
+              Buscando Familia
             </a>
-            <div className="flex items-center gap-2 shrink-0">
-              <a href="/como-funciona" className="text-sm underline whitespace-nowrap">
+            <div className="flex items-center gap-3 shrink-0 text-sm">
+              <a href="/como-funciona" className="underline whitespace-nowrap">
                 Cómo funciona
               </a>
-              <a href="/como-ayudar" className="text-sm underline whitespace-nowrap">
+              <a href="/como-ayudar" className="underline whitespace-nowrap">
                 Recomendaciones
-              </a>
-              <a href="/iniciativas" className="text-sm underline whitespace-nowrap">
-                Iniciativas de ayuda
-              </a>
-              <a
-                href="/new"
-                className="bg-white text-red-700 px-3 py-1.5 rounded font-semibold text-sm whitespace-nowrap"
-              >
-                + Publicar a alguien que buscas
               </a>
             </div>
           </div>
