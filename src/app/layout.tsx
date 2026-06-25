@@ -12,8 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_NAME = "Página para ayudar a encontrar personas desaparecidas por el terremoto de Junio 24 en Venezuela";
+
 export const metadata: Metadata = {
-  title: "Buscando Familia — Terremoto Venezuela",
+  title: SITE_NAME,
   description:
     "Un espacio para ayudar a reconectar a familias separadas por el terremoto en Venezuela.",
 };
@@ -30,16 +32,21 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
         <header className="bg-red-700 text-white px-4 py-3 shadow">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <a href="/" className="font-bold text-lg">
-              Buscando Familia
+          <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <a href="/" className="font-bold leading-snug">
+              {SITE_NAME}
             </a>
-            <a
-              href="/new"
-              className="bg-white text-red-700 px-3 py-1.5 rounded font-semibold text-sm"
-            >
-              + Publicar a alguien que buscas
-            </a>
+            <div className="flex items-center gap-2 shrink-0">
+              <a href="/como-funciona" className="text-sm underline whitespace-nowrap">
+                Cómo funciona
+              </a>
+              <a
+                href="/new"
+                className="bg-white text-red-700 px-3 py-1.5 rounded font-semibold text-sm whitespace-nowrap"
+              >
+                + Publicar a alguien que buscas
+              </a>
+            </div>
           </div>
         </header>
         <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6">{children}</main>

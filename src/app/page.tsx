@@ -57,7 +57,11 @@ export default async function HomePage({
         <h1 className="text-2xl font-bold">Buscando familia tras el terremoto</h1>
         <p className="text-neutral-600 mt-1">
           Publica sobre un familiar desaparecido, o busca para ver si alguien ha publicado sobre
-          alguien que conoces.
+          alguien que conoces.{" "}
+          <a href="/como-funciona" className="text-red-700 underline">
+            Ver cómo funciona
+          </a>
+          .
         </p>
       </div>
 
