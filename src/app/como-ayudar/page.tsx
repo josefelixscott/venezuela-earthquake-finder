@@ -1,12 +1,12 @@
 export const metadata = {
-  title: "Cómo ayudar — Buscando Familia",
+  title: "Recomendaciones — Buscando Familia",
 };
 
 export default function ComoAyudarPage() {
   return (
     <div className="max-w-md mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Cómo ayudar</h1>
+        <h1 className="text-2xl font-bold">Recomendaciones</h1>
         <p className="text-neutral-600 mt-1">
           No necesitas estar buscando a alguien para ayudar. Esto es lo más útil que puedes
           hacer.
@@ -69,6 +69,12 @@ export default function ComoAyudarPage() {
           emergencia.
         </p>
       </section>
+
+      <div className="text-center">
+        <a href="/iniciativas" className="text-red-700 underline text-sm">
+          Ver iniciativas de ayuda (centros de acopio, donaciones, refugios)
+        </a>
+      </div>
 
       <div className="text-center">
         <a href="/" className="text-red-700 underline text-sm">

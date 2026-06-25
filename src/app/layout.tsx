@@ -41,7 +41,10 @@ export default function RootLayout({
                 Cómo funciona
               </a>
               <a href="/como-ayudar" className="text-sm underline whitespace-nowrap">
-                Cómo ayudar
+                Recomendaciones
+              </a>
+              <a href="/iniciativas" className="text-sm underline whitespace-nowrap">
+                Iniciativas de ayuda
               </a>
               <a
                 href="/new"
