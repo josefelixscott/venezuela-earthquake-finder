@@ -1,4 +1,10 @@
-export default function HubPage() {
+import { getPostStats } from "@/lib/postStats";
+
+export const dynamic = "force-dynamic";
+
+export default async function HubPage() {
+  const stats = await getPostStats();
+
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div>
@@ -9,6 +15,21 @@ export default function HubPage() {
         <p className="text-neutral-600 mt-1">
           Elige una opción para buscar, publicar, o encontrar formas de ayudar.
         </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-neutral-100 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-neutral-800">{stats.total}</div>
+          <div className="text-xs text-neutral-600 mt-1">Personas registradas</div>
+        </div>
+        <div className="bg-red-50 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-red-700">{stats.looking}</div>
+          <div className="text-xs text-red-700 mt-1">Por localizar</div>
+        </div>
+        <div className="bg-green-50 rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-green-700">{stats.found}</div>
+          <div className="text-xs text-green-700 mt-1">Localizadas</div>
+        </div>
       </div>
 
       <form action="/personas" className="flex gap-2">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getEnv } from "@/lib/cloudflare";
 import { VENEZUELA_STATES } from "@/lib/venezuelaStates";
+import { getPostStats } from "@/lib/postStats";
 
 export const dynamic = "force-dynamic";
 
@@ -18,29 +19,6 @@ interface PostRow {
 
 const STALE_AFTER_DAYS = 7;
 const HIDE_AFTER_DAYS = 30;
-
-interface Stats {
-  total: number;
-  looking: number;
-  found: number;
-}
-
-async function getStats(): Promise<Stats> {
-  const { DB } = await getEnv();
-  const row = await DB.prepare(
-    `SELECT
-       COUNT(*) AS total,
-       SUM(CASE WHEN status = 'looking' THEN 1 ELSE 0 END) AS looking,
-       SUM(CASE WHEN status = 'found' THEN 1 ELSE 0 END) AS found
-     FROM posts`
-  ).first<{ total: number; looking: number | null; found: number | null }>();
-
-  return {
-    total: row?.total ?? 0,
-    looking: row?.looking ?? 0,
-    found: row?.found ?? 0,
-  };
-}
 
 async function getPosts(q?: string, state?: string): Promise<PostRow[]> {
   const { DB } = await getEnv();
@@ -79,7 +57,7 @@ export default async function PersonasPage({
   searchParams: Promise<{ q?: string; state?: string }>;
 }) {
   const { q, state } = await searchParams;
-  const [posts, stats] = await Promise.all([getPosts(q, state), getStats()]);
+  const [posts, stats] = await Promise.all([getPosts(q, state), getPostStats()]);
 
   return (
     <div className="space-y-6">
