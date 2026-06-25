@@ -40,10 +40,10 @@ export default async function HomePage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Looking for family after the earthquake</h1>
+        <h1 className="text-2xl font-bold">Buscando familia tras el terremoto</h1>
         <p className="text-neutral-600 mt-1">
-          Post about a missing family member, or search to see if someone has posted about
-          someone you know.
+          Publica sobre un familiar desaparecido, o busca para ver si alguien ha publicado sobre
+          alguien que conoces.
         </p>
       </div>
 
@@ -52,17 +52,19 @@ export default async function HomePage({
           type="text"
           name="q"
           defaultValue={q ?? ""}
-          placeholder="Search by name or location..."
+          placeholder="Buscar por nombre o ubicación..."
           className="flex-1 border rounded px-3 py-2"
         />
         <button type="submit" className="bg-neutral-800 text-white px-4 py-2 rounded">
-          Search
+          Buscar
         </button>
       </form>
 
       {posts.length === 0 ? (
         <p className="text-neutral-500 text-center py-12">
-          {q ? "No matching posts found." : "No posts yet. Be the first to post."}
+          {q
+            ? "No se encontraron publicaciones."
+            : "Aún no hay publicaciones. Sé el primero en publicar."}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -79,7 +81,7 @@ export default async function HomePage({
                     {post.age && <span className="text-sm text-neutral-500">{post.age}</span>}
                     {post.status === "found" && (
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                        Found
+                        Encontrado
                       </span>
                     )}
                   </div>

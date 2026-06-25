@@ -17,14 +17,14 @@ export async function POST(
   const contactInfo = body.contactInfo?.trim() || null;
 
   if (!authorName || !message) {
-    return NextResponse.json({ error: "authorName and message are required" }, { status: 400 });
+    return NextResponse.json({ error: "El nombre y el mensaje son obligatorios" }, { status: 400 });
   }
 
   const { DB } = await getEnv();
 
   const post = await DB.prepare(`SELECT id FROM posts WHERE id = ?1`).bind(id).first();
   if (!post) {
-    return NextResponse.json({ error: "post not found" }, { status: 404 });
+    return NextResponse.json({ error: "publicación no encontrada" }, { status: 404 });
   }
 
   const replyId = crypto.randomUUID();

@@ -29,12 +29,12 @@ export default function ReplyForm({ postId }: { postId: string }) {
       });
       const data = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {
-        throw new Error(data.error ?? "Something went wrong");
+        throw new Error(data.error ?? "Algo salió mal");
       }
       form.reset();
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "Algo salió mal");
     } finally {
       setSubmitting(false);
     }
@@ -42,23 +42,23 @@ export default function ReplyForm({ postId }: { postId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 border-t pt-4">
-      <h3 className="font-medium text-sm">Have information? Reply here.</h3>
+      <h3 className="font-medium text-sm">¿Tienes información? Responde aquí.</h3>
       <input
         name="authorName"
         required
-        placeholder="Your name"
+        placeholder="Tu nombre"
         className="w-full border rounded px-3 py-2 text-sm"
       />
       <textarea
         name="message"
         required
         rows={2}
-        placeholder="What do you know?"
+        placeholder="¿Qué sabes?"
         className="w-full border rounded px-3 py-2 text-sm"
       />
       <input
         name="contactInfo"
-        placeholder="Your contact info (optional)"
+        placeholder="Tu información de contacto (opcional)"
         className="w-full border rounded px-3 py-2 text-sm"
       />
       {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -67,7 +67,7 @@ export default function ReplyForm({ postId }: { postId: string }) {
         disabled={submitting}
         className="bg-neutral-800 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
       >
-        {submitting ? "Sending..." : "Send reply"}
+        {submitting ? "Enviando..." : "Enviar respuesta"}
       </button>
     </form>
   );

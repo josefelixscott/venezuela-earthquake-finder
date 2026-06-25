@@ -19,51 +19,51 @@ export default function NewPostPage() {
       const res = await fetch("/api/posts", { method: "POST", body: formData });
       const data = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) {
-        throw new Error(data.error ?? "Something went wrong");
+        throw new Error(data.error ?? "Algo salió mal");
       }
       router.push(`/posts/${data.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "Algo salió mal");
       setSubmitting(false);
     }
   }
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Post about someone you're looking for</h1>
+      <h1 className="text-2xl font-bold mb-4">Publica sobre alguien que buscas</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Name *</label>
+          <label className="block text-sm font-medium mb-1">Nombre *</label>
           <input name="name" required className="w-full border rounded px-3 py-2" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Age</label>
+          <label className="block text-sm font-medium mb-1">Edad</label>
           <input name="age" className="w-full border rounded px-3 py-2" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Last known location *</label>
+          <label className="block text-sm font-medium mb-1">Última ubicación conocida *</label>
           <input
             name="lastKnownLocation"
             required
-            placeholder="City, neighborhood, address..."
+            placeholder="Ciudad, barrio, dirección..."
             className="w-full border rounded px-3 py-2"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
+          <label className="block text-sm font-medium mb-1">Descripción</label>
           <textarea
             name="description"
             rows={3}
-            placeholder="Physical description, what happened, who they were with..."
+            placeholder="Descripción física, qué ocurrió, con quién estaba..."
             className="w-full border rounded px-3 py-2"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Your contact info *</label>
+          <label className="block text-sm font-medium mb-1">Tu información de contacto *</label>
           <input
             name="contactInfo"
             required
-            placeholder="Phone number, email, or WhatsApp"
+            placeholder="Número de teléfono, correo o WhatsApp"
             className="w-full border rounded px-3 py-2"
           />
         </div>
@@ -74,7 +74,7 @@ export default function NewPostPage() {
           disabled={submitting}
           className="w-full bg-red-700 text-white py-2.5 rounded font-semibold disabled:opacity-50"
         >
-          {submitting ? "Posting..." : "Post"}
+          {submitting ? "Publicando..." : "Publicar"}
         </button>
       </form>
     </div>

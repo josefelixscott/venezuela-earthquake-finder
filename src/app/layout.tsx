@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Buscando Familia — Venezuela Earthquake",
+  title: "Buscando Familia — Terremoto Venezuela",
   description:
-    "A board to help reconnect families separated by the Venezuela earthquake.",
+    "Un espacio para ayudar a reconectar a familias separadas por el terremoto en Venezuela.",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
@@ -38,13 +38,14 @@ export default function RootLayout({
               href="/new"
               className="bg-white text-red-700 px-3 py-1.5 rounded font-semibold text-sm"
             >
-              + Post someone you're looking for
+              + Publicar a alguien que buscas
             </a>
           </div>
         </header>
         <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6">{children}</main>
         <footer className="text-center text-xs text-neutral-500 py-4">
-          Community-run board. Verify any contact carefully before sharing sensitive information.
+          Espacio comunitario. Verifica cuidadosamente cualquier contacto antes de compartir
+          información sensible.
         </footer>
       </body>
     </html>

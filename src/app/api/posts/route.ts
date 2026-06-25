@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
   if (!name || !lastKnownLocation || !contactInfo) {
     return NextResponse.json(
-      { error: "name, lastKnownLocation, and contactInfo are required" },
+      { error: "el nombre, la ubicación y el contacto son obligatorios" },
       { status: 400 }
     );
   }

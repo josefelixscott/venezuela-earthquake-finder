@@ -51,26 +51,27 @@ export default async function PostDetailPage({
           {post.age && <span className="text-neutral-500">{post.age}</span>}
           {post.status === "found" && (
             <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-              Found
+              Encontrado
             </span>
           )}
         </div>
         <p className="text-neutral-700 mt-1">
-          <span className="font-medium">Last known location:</span> {post.last_known_location}
+          <span className="font-medium">Última ubicación conocida:</span>{" "}
+          {post.last_known_location}
         </p>
         {post.description && <p className="text-neutral-700 mt-1">{post.description}</p>}
         <p className="text-neutral-700 mt-1">
-          <span className="font-medium">Contact:</span> {post.contact_info}
+          <span className="font-medium">Contacto:</span> {post.contact_info}
         </p>
         <p className="text-xs text-neutral-400 mt-2">
-          Posted {new Date(post.created_at + "Z").toLocaleString()}
+          Publicado {new Date(post.created_at + "Z").toLocaleString("es-VE")}
         </p>
       </div>
 
       <div>
-        <h2 className="font-semibold mb-2">Replies ({replies.length})</h2>
+        <h2 className="font-semibold mb-2">Respuestas ({replies.length})</h2>
         {replies.length === 0 ? (
-          <p className="text-neutral-500 text-sm mb-4">No replies yet.</p>
+          <p className="text-neutral-500 text-sm mb-4">Aún no hay respuestas.</p>
         ) : (
           <ul className="space-y-3 mb-4">
             {replies.map((reply) => (
@@ -78,7 +79,7 @@ export default async function PostDetailPage({
                 <div className="font-medium">{reply.author_name}</div>
                 <p className="text-neutral-700 text-sm">{reply.message}</p>
                 {reply.contact_info && (
-                  <p className="text-neutral-500 text-xs mt-1">Contact: {reply.contact_info}</p>
+                  <p className="text-neutral-500 text-xs mt-1">Contacto: {reply.contact_info}</p>
                 )}
               </li>
             ))}

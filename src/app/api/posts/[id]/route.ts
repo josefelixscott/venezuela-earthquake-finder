@@ -8,7 +8,6 @@ interface PostRow {
   last_known_location: string;
   description: string | null;
   contact_info: string;
-  photo_key: string | null;
   status: string;
   created_at: string;
 }
@@ -31,7 +30,7 @@ export async function GET(
 
   const post = await DB.prepare(`SELECT * FROM posts WHERE id = ?1`).bind(id).first<PostRow>();
   if (!post) {
-    return NextResponse.json({ error: "not found" }, { status: 404 });
+    return NextResponse.json({ error: "no encontrado" }, { status: 404 });
   }
 
   const replies = await DB.prepare(
@@ -51,7 +50,10 @@ export async function PATCH(
   const body = await request.json<{ status?: string }>();
 
   if (body.status !== "looking" && body.status !== "found") {
-    return NextResponse.json({ error: "status must be 'looking' or 'found'" }, { status: 400 });
+    return NextResponse.json(
+      { error: "el estado debe ser 'looking' o 'found'" },
+      { status: 400 }
+    );
   }
 
   const { DB } = await getEnv();
