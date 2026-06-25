@@ -10,16 +10,15 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
-  contact_info: string;
   status: string;
   created_at: string;
+  last_confirmed_at: string;
 }
 
 interface ReplyRow {
   id: string;
   author_name: string;
   message: string;
-  contact_info: string | null;
   note_type: string;
   created_at: string;
 }
@@ -31,6 +30,8 @@ const NOTE_TYPE_LABELS: Record<string, string> = {
   believed_found: "Cree que fue encontrado/a",
 };
 
+const STALE_AFTER_DAYS = 7;
+
 export default async function PostDetailPage({
   params,
 }: {
@@ -39,17 +40,29 @@ export default async function PostDetailPage({
   const { id } = await params;
   const { DB } = await getEnv();
 
-  const post = await DB.prepare(`SELECT * FROM posts WHERE id = ?1`).bind(id).first<PostRow>();
+  // contact_info is intentionally excluded: contact only happens through the reply
+  // relay below, never by exposing a phone number/address directly on a public page.
+  const post = await DB.prepare(
+    `SELECT id, name, age, last_known_location, description, status, created_at, last_confirmed_at
+     FROM posts WHERE id = ?1`
+  )
+    .bind(id)
+    .first<PostRow>();
   if (!post) {
     notFound();
   }
 
   const repliesResult = await DB.prepare(
-    `SELECT * FROM replies WHERE post_id = ?1 ORDER BY created_at ASC`
+    `SELECT id, author_name, message, note_type, created_at FROM replies WHERE post_id = ?1 ORDER BY created_at ASC`
   )
     .bind(id)
     .all<ReplyRow>();
   const replies = repliesResult.results;
+
+  const daysSinceConfirmed = Math.floor(
+    (Date.now() - new Date(post.last_confirmed_at + "Z").getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const isStale = post.status === "looking" && daysSinceConfirmed >= STALE_AFTER_DAYS;
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -68,12 +81,20 @@ export default async function PostDetailPage({
           {post.last_known_location}
         </p>
         {post.description && <p className="text-neutral-700 mt-1">{post.description}</p>}
-        <p className="text-neutral-700 mt-1">
-          <span className="font-medium">Contacto:</span> {post.contact_info}
+        <p className="text-neutral-700 mt-1 text-sm bg-neutral-50 border rounded p-2">
+          Por seguridad, no mostramos el contacto directo de quien publicó. Usa el formulario de
+          respuesta abajo para comunicarte — la persona que publicó verá tu mensaje y tu
+          contacto.
         </p>
         <p className="text-xs text-neutral-400 mt-2">
           Publicado {new Date(post.created_at + "Z").toLocaleString("es-VE")}
         </p>
+        {isStale && (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-2">
+            Esta publicación no se ha confirmado en {daysSinceConfirmed} días. Es posible que la
+            información esté desactualizada.
+          </p>
+        )}
       </div>
 
       <div>
@@ -93,9 +114,6 @@ export default async function PostDetailPage({
                   )}
                 </div>
                 <p className="text-neutral-700 text-sm">{reply.message}</p>
-                {reply.contact_info && (
-                  <p className="text-neutral-500 text-xs mt-1">Contacto: {reply.contact_info}</p>
-                )}
               </li>
             ))}
           </ul>

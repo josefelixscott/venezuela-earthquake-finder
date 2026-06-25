@@ -12,7 +12,24 @@ interface PostRow {
   contact_info: string;
   status: string;
   created_at: string;
+  last_confirmed_at: string;
 }
+
+interface ReplyRow {
+  id: string;
+  author_name: string;
+  message: string;
+  contact_info: string | null;
+  note_type: string;
+  created_at: string;
+}
+
+const NOTE_TYPE_LABELS: Record<string, string> = {
+  information: "Tiene información",
+  is_this_person: "Es esta persona",
+  volunteering: "Quiere ayudar a buscar",
+  believed_found: "Cree que fue encontrado/a",
+};
 
 export default function EditPostPage() {
   const params = useParams<{ token: string }>();
@@ -22,24 +39,32 @@ export default function EditPostPage() {
   const justCreated = searchParams.get("created") === "1";
 
   const [post, setPost] = useState<PostRow | null>(null);
+  const [replies, setReplies] = useState<ReplyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    fetch(`/api/posts/by-token/${token}`)
+  function load() {
+    return fetch(`/api/posts/by-token/${token}`)
       .then(async (res) => {
         if (!res.ok) {
           setNotFound(true);
           return;
         }
-        const data = (await res.json()) as { post: PostRow };
+        const data = (await res.json()) as { post: PostRow; replies: ReplyRow[] };
         setPost(data.post);
+        setReplies(data.replies);
       })
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
@@ -71,10 +96,33 @@ export default function EditPostPage() {
         throw new Error(data.error ?? "Algo salió mal");
       }
       setSaved(true);
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo salió mal");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleConfirmStillLooking() {
+    if (!post) return;
+    setConfirming(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, status: "looking" }),
+      });
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error ?? "Algo salió mal");
+      }
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Algo salió mal");
+    } finally {
+      setConfirming(false);
     }
   }
 
@@ -99,15 +147,19 @@ export default function EditPostPage() {
     );
   }
 
+  const daysSinceConfirmed = Math.floor(
+    (Date.now() - new Date(post.last_confirmed_at + "Z").getTime()) / (1000 * 60 * 60 * 24)
+  );
+
   return (
     <div className="max-w-md mx-auto space-y-6">
       {justCreated && (
         <div className="bg-yellow-50 border border-yellow-300 rounded p-3 text-sm text-yellow-800">
           <p className="font-semibold mb-1">¡Publicación creada! Guarda este enlace.</p>
           <p>
-            Esta página te permite editar la publicación o marcarla como{" "}
-            <strong>encontrado/a</strong> más adelante. No podrás volver a esta página sin el
-            enlace.
+            Esta página te permite editar la publicación, ver respuestas con su contacto, o
+            marcarla como <strong>encontrado/a</strong> más adelante. No podrás volver a esta
+            página sin el enlace.
           </p>
           <button
             onClick={copyLink}
@@ -123,6 +175,20 @@ export default function EditPostPage() {
         <a href={`/posts/${post.id}`} className="text-sm text-red-700 underline">
           Ver publicación pública
         </a>
+      </div>
+
+      <div className="bg-neutral-50 border rounded p-3 text-sm flex items-center justify-between gap-3">
+        <span className="text-neutral-600">
+          Confirmada hace {daysSinceConfirmed === 0 ? "menos de un día" : `${daysSinceConfirmed} días`}.
+          Confirma regularmente para que otros sepan que la publicación sigue vigente.
+        </span>
+        <button
+          onClick={handleConfirmStillLooking}
+          disabled={confirming}
+          className="bg-neutral-800 text-white px-3 py-1.5 rounded text-xs font-medium whitespace-nowrap disabled:opacity-50"
+        >
+          {confirming ? "..." : "Sigo buscando"}
+        </button>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">
@@ -180,6 +246,9 @@ export default function EditPostPage() {
             defaultValue={post.contact_info}
             className="w-full border rounded px-3 py-2"
           />
+          <p className="text-xs text-neutral-500 mt-1">
+            Nunca se muestra públicamente. Solo tú la ves aquí.
+          </p>
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -193,6 +262,32 @@ export default function EditPostPage() {
           {saving ? "Guardando..." : "Guardar cambios"}
         </button>
       </form>
+
+      <div>
+        <h2 className="font-semibold mb-2">Respuestas ({replies.length})</h2>
+        {replies.length === 0 ? (
+          <p className="text-neutral-500 text-sm">Aún no hay respuestas.</p>
+        ) : (
+          <ul className="space-y-3">
+            {replies.map((reply) => (
+              <li key={reply.id} className="border rounded p-3 bg-white">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{reply.author_name}</span>
+                  {NOTE_TYPE_LABELS[reply.note_type] && (
+                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                      {NOTE_TYPE_LABELS[reply.note_type]}
+                    </span>
+                  )}
+                </div>
+                <p className="text-neutral-700 text-sm">{reply.message}</p>
+                {reply.contact_info && (
+                  <p className="text-neutral-500 text-xs mt-1">Contacto: {reply.contact_info}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

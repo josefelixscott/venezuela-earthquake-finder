@@ -10,6 +10,16 @@ interface PostRow {
   contact_info: string;
   status: string;
   created_at: string;
+  last_confirmed_at: string;
+}
+
+interface ReplyRow {
+  id: string;
+  author_name: string;
+  message: string;
+  contact_info: string | null;
+  note_type: string;
+  created_at: string;
 }
 
 export async function GET(
@@ -19,8 +29,10 @@ export async function GET(
   const { token } = await params;
   const { DB } = await getEnv();
 
+  // Only the owner, authenticated via their private edit token, can see
+  // contact_info — both their own and every reply's — anywhere on the site.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, contact_info, status, created_at
+    `SELECT id, name, age, last_known_location, description, contact_info, status, created_at, last_confirmed_at
      FROM posts WHERE edit_token = ?1`
   )
     .bind(token)
@@ -30,5 +42,12 @@ export async function GET(
     return NextResponse.json({ error: "enlace de edición no válido" }, { status: 404 });
   }
 
-  return NextResponse.json({ post });
+  const replies = await DB.prepare(
+    `SELECT id, author_name, message, contact_info, note_type, created_at
+     FROM replies WHERE post_id = ?1 ORDER BY created_at ASC`
+  )
+    .bind(post.id)
+    .all<ReplyRow>();
+
+  return NextResponse.json({ post, replies: replies.results });
 }

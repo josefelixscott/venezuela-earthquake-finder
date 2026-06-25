@@ -2,6 +2,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export interface CloudflareEnv {
   DB: D1Database;
+  EXPORT_TOKEN?: string;
 }
 
 export async function getEnv(): Promise<CloudflareEnv> {

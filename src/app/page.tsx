@@ -9,23 +9,37 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
-  contact_info: string;
   status: string;
   created_at: string;
+  last_confirmed_at: string;
 }
+
+const STALE_AFTER_DAYS = 7;
+const HIDE_AFTER_DAYS = 30;
 
 async function getPosts(q?: string): Promise<PostRow[]> {
   const { DB } = await getEnv();
+  // contact_info is intentionally excluded from every public listing query.
+  // Posts unconfirmed for HIDE_AFTER_DAYS drop out of the default list (but the
+  // direct link still works) so volunteers stop spending time on stale leads.
+  const columns = "id, name, age, last_known_location, description, status, created_at, last_confirmed_at";
   if (q) {
     const like = `%${q}%`;
     const result = await DB.prepare(
-      `SELECT * FROM posts WHERE name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1 ORDER BY created_at DESC LIMIT 200`
+      `SELECT ${columns} FROM posts
+       WHERE (name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1)
+         AND (status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))
+       ORDER BY created_at DESC LIMIT 200`
     )
       .bind(like)
       .all<PostRow>();
     return result.results;
   }
-  const result = await DB.prepare(`SELECT * FROM posts ORDER BY created_at DESC LIMIT 200`).all<PostRow>();
+  const result = await DB.prepare(
+    `SELECT ${columns} FROM posts
+     WHERE status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days')
+     ORDER BY created_at DESC LIMIT 200`
+  ).all<PostRow>();
   return result.results;
 }
 
@@ -68,31 +82,43 @@ export default async function HomePage({
         </p>
       ) : (
         <ul className="space-y-3">
-          {posts.map((post) => (
-            <li key={post.id}>
-              <Link
-                href={`/posts/${post.id}`}
-                className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
-              >
-                <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">{post.name}</span>
-                    {post.age && <span className="text-sm text-neutral-500">{post.age}</span>}
-                    {post.status === "found" && (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                        Encontrado
-                      </span>
+          {posts.map((post) => {
+            const daysSinceConfirmed = Math.floor(
+              (Date.now() - new Date(post.last_confirmed_at + "Z").getTime()) /
+                (1000 * 60 * 60 * 24)
+            );
+            const isStale = post.status === "looking" && daysSinceConfirmed >= STALE_AFTER_DAYS;
+            return (
+              <li key={post.id}>
+                <Link
+                  href={`/posts/${post.id}`}
+                  className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
+                >
+                  <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{post.name}</span>
+                      {post.age && <span className="text-sm text-neutral-500">{post.age}</span>}
+                      {post.status === "found" && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                          Encontrado
+                        </span>
+                      )}
+                      {isStale && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                          Sin confirmar
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-neutral-600">{post.last_known_location}</div>
+                    {post.description && (
+                      <div className="text-sm text-neutral-500 truncate">{post.description}</div>
                     )}
                   </div>
-                  <div className="text-sm text-neutral-600">{post.last_known_location}</div>
-                  {post.description && (
-                    <div className="text-sm text-neutral-500 truncate">{post.description}</div>
-                  )}
-                </div>
-              </Link>
-            </li>
-          ))}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

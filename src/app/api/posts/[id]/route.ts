@@ -7,10 +7,9 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
-  contact_info: string;
   status: string;
-  edit_token: string;
   created_at: string;
+  last_confirmed_at: string;
 }
 
 interface ReplyRow {
@@ -18,7 +17,6 @@ interface ReplyRow {
   post_id: string;
   author_name: string;
   message: string;
-  contact_info: string | null;
   note_type: string;
   created_at: string;
 }
@@ -30,17 +28,19 @@ export async function GET(
   const { id } = await params;
   const { DB } = await getEnv();
 
+  // contact_info is intentionally never returned from this public endpoint.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, contact_info, status, created_at FROM posts WHERE id = ?1`
+    `SELECT id, name, age, last_known_location, description, status, created_at, last_confirmed_at
+     FROM posts WHERE id = ?1`
   )
     .bind(id)
-    .first<Omit<PostRow, "edit_token">>();
+    .first<PostRow>();
   if (!post) {
     return NextResponse.json({ error: "no encontrado" }, { status: 404 });
   }
 
   const replies = await DB.prepare(
-    `SELECT * FROM replies WHERE post_id = ?1 ORDER BY created_at ASC`
+    `SELECT id, post_id, author_name, message, note_type, created_at FROM replies WHERE post_id = ?1 ORDER BY created_at ASC`
   )
     .bind(id)
     .all<ReplyRow>();
@@ -56,6 +56,7 @@ interface PatchBody {
   lastKnownLocation?: string;
   description?: string | null;
   contactInfo?: string;
+  confirm?: boolean;
 }
 
 export async function PATCH(
@@ -92,6 +93,8 @@ export async function PATCH(
   const lastKnownLocation = body.lastKnownLocation?.trim();
   const contactInfo = body.contactInfo?.trim();
 
+  // Any save from the owner (including an explicit "confirm") counts as confirming
+  // the post is still accurate, which resets the staleness clock.
   await DB.prepare(
     `UPDATE posts SET
        status = COALESCE(?1, status),
@@ -99,7 +102,8 @@ export async function PATCH(
        age = ?3,
        last_known_location = COALESCE(?4, last_known_location),
        description = ?5,
-       contact_info = COALESCE(?6, contact_info)
+       contact_info = COALESCE(?6, contact_info),
+       last_confirmed_at = datetime('now')
      WHERE id = ?7`
   )
     .bind(

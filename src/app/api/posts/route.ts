@@ -7,25 +7,37 @@ interface PostRow {
   age: string | null;
   last_known_location: string;
   description: string | null;
-  contact_info: string;
   status: string;
   created_at: string;
+  last_confirmed_at: string;
 }
+
+const HIDE_AFTER_DAYS = 30;
 
 export async function GET(request: NextRequest) {
   const { DB } = await getEnv();
   const q = request.nextUrl.searchParams.get("q")?.trim();
+  // contact_info is intentionally excluded from this public endpoint.
+  const columns =
+    "id, name, age, last_known_location, description, status, created_at, last_confirmed_at";
 
   let result;
   if (q) {
     const like = `%${q}%`;
     result = await DB.prepare(
-      `SELECT * FROM posts WHERE name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1 ORDER BY created_at DESC LIMIT 200`
+      `SELECT ${columns} FROM posts
+       WHERE (name LIKE ?1 OR last_known_location LIKE ?1 OR description LIKE ?1)
+         AND (status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))
+       ORDER BY created_at DESC LIMIT 200`
     )
       .bind(like)
       .all<PostRow>();
   } else {
-    result = await DB.prepare(`SELECT * FROM posts ORDER BY created_at DESC LIMIT 200`).all<PostRow>();
+    result = await DB.prepare(
+      `SELECT ${columns} FROM posts
+       WHERE status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days')
+       ORDER BY created_at DESC LIMIT 200`
+    ).all<PostRow>();
   }
 
   return NextResponse.json({ posts: result.results });
