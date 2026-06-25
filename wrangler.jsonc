@@ -4,10 +4,15 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "routes": [
+    { "pattern": "terremotovenezuela2026.com", "custom_domain": true },
+    { "pattern": "www.terremotovenezuela2026.com", "custom_domain": true }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
