@@ -1,8 +1,42 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getEnv } from "@/lib/cloudflare";
 import { CATEGORY_LABELS } from "@/lib/initiativeCategories";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = "https://terremotovenezuela2026.com";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { DB } = await getEnv();
+  const initiative = await DB.prepare(
+    `SELECT title, location, state, photo_key FROM initiatives WHERE id = ?1`
+  )
+    .bind(id)
+    .first<{ title: string; location: string; state: string | null; photo_key: string | null }>();
+
+  if (!initiative) {
+    return { title: "Iniciativa no encontrada" };
+  }
+
+  const title = `${initiative.title} — Iniciativa de ayuda`;
+  const description = `${initiative.state ? initiative.state + " — " : ""}${initiative.location}. Ayuda a difundir esta iniciativa.`;
+  const images = initiative.photo_key
+    ? [`${SITE_URL}/api/photos/${initiative.photo_key}`]
+    : undefined;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, images, url: `${SITE_URL}/iniciativas/${id}` },
+    twitter: { card: "summary_large_image", title, description, images },
+  };
+}
 
 interface InitiativeRow {
   id: string;

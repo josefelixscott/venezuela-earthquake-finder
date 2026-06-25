@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ShareButtons from "./ShareButtons";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,9 @@ export default function RootLayout({
           </div>
         </header>
         <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6">{children}</main>
+        <div className="border-t bg-white">
+          <ShareButtons />
+        </div>
         <footer className="text-center text-xs text-neutral-500 py-4">
           Espacio comunitario. Verifica cuidadosamente cualquier contacto antes de compartir
           información sensible.

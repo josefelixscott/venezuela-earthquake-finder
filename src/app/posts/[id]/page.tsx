@@ -1,8 +1,46 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getEnv } from "@/lib/cloudflare";
 import ReplyForm from "./ReplyForm";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = "https://terremotovenezuela2026.com";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { DB } = await getEnv();
+  const post = await DB.prepare(
+    `SELECT name, last_known_location, state, photo_key, status FROM posts WHERE id = ?1`
+  )
+    .bind(id)
+    .first<{
+      name: string;
+      last_known_location: string;
+      state: string | null;
+      photo_key: string | null;
+      status: string;
+    }>();
+
+  if (!post) {
+    return { title: "Publicación no encontrada" };
+  }
+
+  const title = `${post.name}${post.status === "found" ? " (encontrado/a)" : ""} — Ayuda a encontrarlo/a`;
+  const description = `Última ubicación conocida: ${post.state ? post.state + " — " : ""}${post.last_known_location}. Ayuda a difundir esta publicación.`;
+  const images = post.photo_key ? [`${SITE_URL}/api/photos/${post.photo_key}`] : undefined;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, images, url: `${SITE_URL}/posts/${id}` },
+    twitter: { card: "summary_large_image", title, description, images },
+  };
+}
 
 interface PostRow {
   id: string;
