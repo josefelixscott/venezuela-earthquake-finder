@@ -201,13 +201,13 @@ export default async function HubPage() {
           href="/personas"
           className="flex-1 flex items-center justify-center gap-1.5 text-center bg-red-50 text-red-800 py-3 rounded-lg font-medium text-sm"
         >
-          <IconUserSearch size={18} stroke={1.75} /> Ver publicaciones
+          <IconUserSearch size={18} stroke={1.75} /> Listado de Personas
         </a>
         <a
           href="/iniciativas"
           className="flex-1 flex items-center justify-center gap-1.5 text-center bg-teal-800 text-white py-3 rounded-lg font-medium text-sm"
         >
-          <IconHeartHandshake size={18} stroke={1.75} /> Ver iniciativas
+          <IconHeartHandshake size={18} stroke={1.75} /> Ver cómo ayudar
         </a>
       </div>
 
@@ -216,7 +216,7 @@ export default async function HubPage() {
           href="/new"
           className="flex-1 text-center bg-red-800 text-white py-2.5 rounded-lg font-medium text-sm"
         >
-          + Publicar persona
+          Busco a una persona
         </a>
         <a
           href="/iniciativas/nueva"
