@@ -101,6 +101,36 @@ export default async function HubPage() {
         </p>
       </div>
 
+      <div className="flex gap-2">
+        <a
+          href="/personas"
+          className="flex-1 flex items-center justify-center gap-1.5 text-center bg-red-50 text-red-800 py-3 rounded-lg font-medium text-sm"
+        >
+          <IconUserSearch size={18} stroke={1.75} /> Listado de Personas
+        </a>
+        <a
+          href="/iniciativas"
+          className="flex-1 flex items-center justify-center gap-1.5 text-center bg-teal-800 text-white py-3 rounded-lg font-medium text-sm"
+        >
+          <IconHeartHandshake size={18} stroke={1.75} /> Ver cómo ayudar
+        </a>
+      </div>
+
+      <div className="flex gap-2">
+        <a
+          href="/new"
+          className="flex-1 text-center bg-red-800 text-white py-2.5 rounded-lg font-medium text-sm"
+        >
+          Busco a una persona
+        </a>
+        <a
+          href="/iniciativas/nueva"
+          className="flex-1 text-center bg-teal-50 text-teal-800 py-2.5 rounded-lg font-medium text-sm"
+        >
+          + Publicar iniciativa
+        </a>
+      </div>
+
       <form action="/personas" className="flex gap-2">
         <input
           type="text"
@@ -195,36 +225,6 @@ export default async function HubPage() {
           </div>
         </div>
       )}
-
-      <div className="flex gap-2">
-        <a
-          href="/personas"
-          className="flex-1 flex items-center justify-center gap-1.5 text-center bg-red-50 text-red-800 py-3 rounded-lg font-medium text-sm"
-        >
-          <IconUserSearch size={18} stroke={1.75} /> Listado de Personas
-        </a>
-        <a
-          href="/iniciativas"
-          className="flex-1 flex items-center justify-center gap-1.5 text-center bg-teal-800 text-white py-3 rounded-lg font-medium text-sm"
-        >
-          <IconHeartHandshake size={18} stroke={1.75} /> Ver cómo ayudar
-        </a>
-      </div>
-
-      <div className="flex gap-2">
-        <a
-          href="/new"
-          className="flex-1 text-center bg-red-800 text-white py-2.5 rounded-lg font-medium text-sm"
-        >
-          Busco a una persona
-        </a>
-        <a
-          href="/iniciativas/nueva"
-          className="flex-1 text-center bg-teal-50 text-teal-800 py-2.5 rounded-lg font-medium text-sm"
-        >
-          + Publicar iniciativa
-        </a>
-      </div>
 
       <div className="flex justify-center gap-4 text-sm">
         <a href="/como-funciona" className="text-neutral-500 underline">
