@@ -10,6 +10,7 @@ interface PostRow {
   contact_info: string;
   state: string | null;
   status: string;
+  photo_key: string | null;
   created_at: string;
   last_confirmed_at: string;
 }
@@ -33,7 +34,7 @@ export async function GET(
   // Only the owner, authenticated via their private edit token, can see
   // contact_info — both their own and every reply's — anywhere on the site.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, contact_info, state, status, created_at, last_confirmed_at
+    `SELECT id, name, age, last_known_location, description, contact_info, state, status, photo_key, created_at, last_confirmed_at
      FROM posts WHERE edit_token = ?1`
   )
     .bind(token)

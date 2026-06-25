@@ -12,6 +12,7 @@ interface PostRow {
   description: string | null;
   state: string | null;
   status: string;
+  photo_key: string | null;
   created_at: string;
   last_confirmed_at: string;
 }
@@ -44,7 +45,7 @@ export default async function PostDetailPage({
   // contact_info is intentionally excluded: contact only happens through the reply
   // relay below, never by exposing a phone number/address directly on a public page.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at
+    `SELECT id, name, age, last_known_location, description, state, status, photo_key, created_at, last_confirmed_at
      FROM posts WHERE id = ?1`
   )
     .bind(id)
@@ -68,6 +69,14 @@ export default async function PostDetailPage({
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="border rounded p-4 bg-white">
+        {post.photo_key && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/api/photos/${post.photo_key}`}
+            alt={post.name}
+            className="w-full max-h-80 object-cover rounded mb-3"
+          />
+        )}
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold">{post.name}</h1>
           {post.age && <span className="text-neutral-500">{post.age}</span>}

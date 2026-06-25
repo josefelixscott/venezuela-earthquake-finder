@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/cloudflare";
 import { INITIATIVE_STATE_OPTIONS } from "@/lib/venezuelaStates";
+import { storePhoto } from "@/lib/photos";
 
 export const VALID_CATEGORIES = [
   "centro_de_acopio",
@@ -20,6 +21,7 @@ interface InitiativeRow {
   contact_info: string;
   link: string | null;
   state: string | null;
+  photo_key: string | null;
   created_at: string;
 }
 
@@ -42,7 +44,8 @@ export async function GET(request: NextRequest) {
   const { DB } = await getEnv();
   const q = request.nextUrl.searchParams.get("q")?.trim();
   const state = request.nextUrl.searchParams.get("state")?.trim();
-  const columns = "id, title, category, location, description, contact_info, link, state, created_at";
+  const columns =
+    "id, title, category, location, description, contact_info, link, state, photo_key, created_at";
 
   const conditions: string[] = [];
   const params: string[] = [];
@@ -97,15 +100,35 @@ export async function POST(request: NextRequest) {
 
   const finalCategory = VALID_CATEGORIES.includes(category) ? category : "otro";
 
-  const { DB } = await getEnv();
+  const env = await getEnv();
+  const { DB } = env;
+  const { key: photoKey, error: photoError } = await storePhoto(
+    env,
+    formData.get("photo") as File | null
+  );
+  if (photoError) {
+    return NextResponse.json({ error: photoError }, { status: 400 });
+  }
+
   const id = crypto.randomUUID();
   const editToken = crypto.randomUUID();
 
   await DB.prepare(
-    `INSERT INTO initiatives (id, title, category, location, description, contact_info, link, state, edit_token)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`
+    `INSERT INTO initiatives (id, title, category, location, description, contact_info, link, state, photo_key, edit_token)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
   )
-    .bind(id, title, finalCategory, location, description, contactInfo, link, state, editToken)
+    .bind(
+      id,
+      title,
+      finalCategory,
+      location,
+      description,
+      contactInfo,
+      link,
+      state,
+      photoKey,
+      editToken
+    )
     .run();
 
   return NextResponse.json({ id, editToken }, { status: 201 });

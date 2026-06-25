@@ -14,6 +14,7 @@ interface InitiativeRow {
   contact_info: string;
   link: string | null;
   state: string | null;
+  photo_key: string | null;
   created_at: string;
 }
 
@@ -32,9 +33,11 @@ export default function EditInitiativePage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch(`/api/initiatives/by-token/${token}`)
+  function load() {
+    return fetch(`/api/initiatives/by-token/${token}`)
       .then(async (res) => {
         if (!res.ok) {
           setNotFound(true);
@@ -44,7 +47,39 @@ export default function EditInitiativePage() {
         setInitiative(data.initiative);
       })
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !initiative) return;
+    setUploadingPhoto(true);
+    setPhotoError(null);
+
+    const formData = new FormData();
+    formData.append("token", token);
+    formData.append("photo", file);
+
+    try {
+      const res = await fetch(`/api/initiatives/${initiative.id}/photo`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        throw new Error(data.error ?? "Algo salió mal");
+      }
+      await load();
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "Algo salió mal");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -147,6 +182,27 @@ export default function EditInitiativePage() {
         <a href={`/iniciativas/${initiative.id}`} className="text-sm text-red-700 underline">
           Ver iniciativa pública
         </a>
+      </div>
+
+      <div className="border rounded p-3">
+        <label className="block text-sm font-medium mb-1">Foto</label>
+        {initiative.photo_key && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/api/photos/${initiative.photo_key}`}
+            alt={initiative.title}
+            className="w-24 h-24 object-cover rounded mb-2"
+          />
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          disabled={uploadingPhoto}
+          className="w-full text-sm"
+        />
+        {uploadingPhoto && <p className="text-xs text-neutral-500 mt-1">Subiendo...</p>}
+        {photoError && <p className="text-red-600 text-sm mt-1">{photoError}</p>}
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">

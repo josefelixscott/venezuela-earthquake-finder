@@ -114,6 +114,15 @@ export default function NewInitiativePage() {
             className="w-full border rounded px-3 py-2"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Foto (opcional)</label>
+          <input
+            name="photo"
+            type="file"
+            accept="image/*"
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
 

@@ -89,6 +89,19 @@ export default function NewPostPage() {
             className="w-full border rounded px-3 py-2"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Foto (opcional)</label>
+          <input
+            name="photo"
+            type="file"
+            accept="image/*"
+            className="w-full border rounded px-3 py-2"
+          />
+          <p className="text-xs text-neutral-500 mt-1">
+            La foto se muestra públicamente para ayudar a identificar a la persona. No incluyas
+            otras personas o información sensible en la imagen.
+          </p>
+        </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
         <button

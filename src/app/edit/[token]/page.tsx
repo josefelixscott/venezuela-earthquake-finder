@@ -13,6 +13,7 @@ interface PostRow {
   contact_info: string;
   state: string | null;
   status: string;
+  photo_key: string | null;
   created_at: string;
   last_confirmed_at: string;
 }
@@ -49,6 +50,8 @@ export default function EditPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   function load() {
     return fetch(`/api/posts/by-token/${token}`)
@@ -129,6 +132,33 @@ export default function EditPostPage() {
     }
   }
 
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !post) return;
+    setUploadingPhoto(true);
+    setPhotoError(null);
+
+    const formData = new FormData();
+    formData.append("token", token);
+    formData.append("photo", file);
+
+    try {
+      const res = await fetch(`/api/posts/${post.id}/photo`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        throw new Error(data.error ?? "Algo salió mal");
+      }
+      await load();
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "Algo salió mal");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
   function copyLink() {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -192,6 +222,30 @@ export default function EditPostPage() {
         >
           {confirming ? "..." : "Sigo buscando"}
         </button>
+      </div>
+
+      <div className="border rounded p-3">
+        <label className="block text-sm font-medium mb-1">Foto</label>
+        {post.photo_key && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/api/photos/${post.photo_key}`}
+            alt={post.name}
+            className="w-24 h-24 object-cover rounded mb-2"
+          />
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          disabled={uploadingPhoto}
+          className="w-full text-sm"
+        />
+        {uploadingPhoto && <p className="text-xs text-neutral-500 mt-1">Subiendo...</p>}
+        {photoError && <p className="text-red-600 text-sm mt-1">{photoError}</p>}
+        <p className="text-xs text-neutral-500 mt-1">
+          Se muestra públicamente para ayudar a identificar a la persona.
+        </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">

@@ -13,6 +13,7 @@ interface InitiativeRow {
   contact_info: string;
   link: string | null;
   state: string | null;
+  photo_key: string | null;
   created_at: string;
 }
 
@@ -25,7 +26,7 @@ export default async function InitiativeDetailPage({
   const { DB } = await getEnv();
 
   const initiative = await DB.prepare(
-    `SELECT id, title, category, location, description, contact_info, link, state, created_at
+    `SELECT id, title, category, location, description, contact_info, link, state, photo_key, created_at
      FROM initiatives WHERE id = ?1`
   )
     .bind(id)
@@ -41,6 +42,14 @@ export default async function InitiativeDetailPage({
         Volver a iniciativas
       </a>
       <div className="border rounded p-4 bg-white">
+        {initiative.photo_key && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/api/photos/${initiative.photo_key}`}
+            alt={initiative.title}
+            className="w-full max-h-80 object-cover rounded mb-3"
+          />
+        )}
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold">{initiative.title}</h1>
           <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">

@@ -13,12 +13,13 @@ interface InitiativeRow {
   location: string;
   description: string | null;
   state: string | null;
+  photo_key: string | null;
   created_at: string;
 }
 
 async function getInitiatives(q?: string, state?: string): Promise<InitiativeRow[]> {
   const { DB } = await getEnv();
-  const columns = "id, title, category, location, description, state, created_at";
+  const columns = "id, title, category, location, description, state, photo_key, created_at";
 
   const conditions: string[] = [];
   const params: string[] = [];
@@ -126,23 +127,37 @@ export default async function InitiativesPage({
             <li key={initiative.id}>
               <Link
                 href={`/iniciativas/${initiative.id}`}
-                className="block border rounded p-3 bg-white hover:bg-neutral-50"
+                className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
               >
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">{initiative.title}</span>
-                  <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
-                    {CATEGORY_LABELS[initiative.category] ?? initiative.category}
-                  </span>
-                </div>
-                <div className="text-sm text-neutral-600">
-                  {initiative.state && <span className="font-medium">{initiative.state} — </span>}
-                  {initiative.location}
-                </div>
-                {initiative.description && (
-                  <div className="text-sm text-neutral-500 truncate">
-                    {initiative.description}
-                  </div>
+                {initiative.photo_key ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/photos/${initiative.photo_key}`}
+                    alt={initiative.title}
+                    className="w-16 h-16 object-cover rounded shrink-0"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
                 )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">{initiative.title}</span>
+                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                      {CATEGORY_LABELS[initiative.category] ?? initiative.category}
+                    </span>
+                  </div>
+                  <div className="text-sm text-neutral-600">
+                    {initiative.state && (
+                      <span className="font-medium">{initiative.state} — </span>
+                    )}
+                    {initiative.location}
+                  </div>
+                  {initiative.description && (
+                    <div className="text-sm text-neutral-500 truncate">
+                      {initiative.description}
+                    </div>
+                  )}
+                </div>
               </Link>
             </li>
           ))}

@@ -13,6 +13,7 @@ interface PostRow {
   description: string | null;
   state: string | null;
   status: string;
+  photo_key: string | null;
   created_at: string;
   last_confirmed_at: string;
 }
@@ -26,7 +27,7 @@ async function getPosts(q?: string, state?: string): Promise<PostRow[]> {
   // Posts unconfirmed for HIDE_AFTER_DAYS drop out of the default list (but the
   // direct link still works) so volunteers stop spending time on stale leads.
   const columns =
-    "id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at";
+    "id, name, age, last_known_location, description, state, status, photo_key, created_at, last_confirmed_at";
 
   const conditions = [
     `(status = 'found' OR last_confirmed_at >= datetime('now', '-${HIDE_AFTER_DAYS} days'))`,
@@ -155,7 +156,16 @@ export default async function PersonasPage({
                   href={`/posts/${post.id}`}
                   className="flex gap-3 border rounded p-3 bg-white hover:bg-neutral-50"
                 >
-                  <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
+                  {post.photo_key ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`/api/photos/${post.photo_key}`}
+                      alt={post.name}
+                      className="w-16 h-16 object-cover rounded shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded bg-neutral-200 shrink-0" />
+                  )}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">{post.name}</span>

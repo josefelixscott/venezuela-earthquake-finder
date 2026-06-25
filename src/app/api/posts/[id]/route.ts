@@ -10,6 +10,7 @@ interface PostRow {
   description: string | null;
   state: string | null;
   status: string;
+  photo_key: string | null;
   created_at: string;
   last_confirmed_at: string;
 }
@@ -32,7 +33,7 @@ export async function GET(
 
   // contact_info is intentionally never returned from this public endpoint.
   const post = await DB.prepare(
-    `SELECT id, name, age, last_known_location, description, state, status, created_at, last_confirmed_at
+    `SELECT id, name, age, last_known_location, description, state, status, photo_key, created_at, last_confirmed_at
      FROM posts WHERE id = ?1`
   )
     .bind(id)
