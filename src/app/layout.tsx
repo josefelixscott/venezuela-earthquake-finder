@@ -40,6 +40,9 @@ export default function RootLayout({
               <a href="/como-funciona" className="text-sm underline whitespace-nowrap">
                 Cómo funciona
               </a>
+              <a href="/como-ayudar" className="text-sm underline whitespace-nowrap">
+                Cómo ayudar
+              </a>
               <a
                 href="/new"
                 className="bg-white text-red-700 px-3 py-1.5 rounded font-semibold text-sm whitespace-nowrap"

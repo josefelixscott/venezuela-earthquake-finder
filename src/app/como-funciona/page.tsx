@@ -68,6 +68,12 @@ export default function ComoFuncionaPage() {
         </ul>
       </section>
 
+      <div className="text-center space-x-4">
+        <a href="/como-ayudar" className="text-red-700 underline text-sm">
+          ¿Quieres ayudar sin estar buscando a alguien?
+        </a>
+      </div>
+
       <div className="text-center">
         <a href="/" className="text-red-700 underline text-sm">
           Volver al inicio
