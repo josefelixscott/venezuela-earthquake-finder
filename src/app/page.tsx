@@ -1,10 +1,52 @@
+import Link from "next/link";
+import { getEnv } from "@/lib/cloudflare";
 import { getPostStats } from "@/lib/postStats";
 import { getInitiativeCount } from "@/lib/initiativeStats";
+import { formatRelativeTime } from "@/lib/relativeTime";
 
 export const dynamic = "force-dynamic";
 
+interface LatestPost {
+  id: string;
+  name: string;
+  state: string | null;
+  photo_key: string | null;
+  created_at: string;
+}
+
+interface LatestInitiative {
+  id: string;
+  title: string;
+  state: string | null;
+  photo_key: string | null;
+  created_at: string;
+}
+
+async function getLatestPosts(): Promise<LatestPost[]> {
+  const { DB } = await getEnv();
+  const result = await DB.prepare(
+    `SELECT id, name, state, photo_key, created_at FROM posts
+     WHERE status = 'looking' ORDER BY created_at DESC LIMIT 3`
+  ).all<LatestPost>();
+  return result.results;
+}
+
+async function getLatestInitiatives(): Promise<LatestInitiative[]> {
+  const { DB } = await getEnv();
+  const result = await DB.prepare(
+    `SELECT id, title, state, photo_key, created_at FROM initiatives
+     ORDER BY created_at DESC LIMIT 3`
+  ).all<LatestInitiative>();
+  return result.results;
+}
+
 export default async function HubPage() {
-  const [stats, initiativeCount] = await Promise.all([getPostStats(), getInitiativeCount()]);
+  const [stats, initiativeCount, latestPosts, latestInitiatives] = await Promise.all([
+    getPostStats(),
+    getInitiativeCount(),
+    getLatestPosts(),
+    getLatestInitiatives(),
+  ]);
 
   return (
     <div className="max-w-md mx-auto space-y-6">
@@ -49,6 +91,82 @@ export default async function HubPage() {
           Buscar
         </button>
       </form>
+
+      {latestPosts.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold">Últimas personas publicadas</h2>
+            <Link href="/personas" className="text-xs text-red-700">
+              Ver todas
+            </Link>
+          </div>
+          <div className="space-y-1.5">
+            {latestPosts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/posts/${post.id}`}
+                className="flex items-center gap-2 border rounded-md p-2 bg-white hover:bg-neutral-50"
+              >
+                {post.photo_key ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/photos/${post.photo_key}`}
+                    alt={post.name}
+                    className="w-9 h-9 object-cover rounded shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded bg-neutral-100 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{post.name}</p>
+                  <p className="text-xs text-neutral-500 truncate">
+                    {post.state ? `${post.state} — ` : ""}
+                    {formatRelativeTime(post.created_at)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {latestInitiatives.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold">Últimas iniciativas de ayuda</h2>
+            <Link href="/iniciativas" className="text-xs text-teal-700">
+              Ver todas
+            </Link>
+          </div>
+          <div className="space-y-1.5">
+            {latestInitiatives.map((initiative) => (
+              <Link
+                key={initiative.id}
+                href={`/iniciativas/${initiative.id}`}
+                className="flex items-center gap-2 border rounded-md p-2 bg-white hover:bg-neutral-50"
+              >
+                {initiative.photo_key ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/photos/${initiative.photo_key}`}
+                    alt={initiative.title}
+                    className="w-9 h-9 object-cover rounded shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded bg-neutral-100 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{initiative.title}</p>
+                  <p className="text-xs text-neutral-500 truncate">
+                    {initiative.state ? `${initiative.state} — ` : ""}
+                    {formatRelativeTime(initiative.created_at)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="border rounded-lg bg-white p-5">
         <div className="flex items-center gap-3 mb-2">
