@@ -17,7 +17,23 @@ interface InitiativeRow {
   location: string;
   description: string | null;
   contact_info: string;
+  link: string | null;
   created_at: string;
+}
+
+// Normalizes to an absolute http(s) URL, or returns null if not a safe link
+// (guards against javascript: and other schemes being stored and later rendered as href).
+export function normalizeLink(raw: string | null | undefined): string | null {
+  const value = raw?.trim();
+  if (!value) return null;
+  const withScheme = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  try {
+    const url = new URL(withScheme);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -28,7 +44,7 @@ export async function GET(request: NextRequest) {
   if (q) {
     const like = `%${q}%`;
     result = await DB.prepare(
-      `SELECT id, title, category, location, description, contact_info, created_at FROM initiatives
+      `SELECT id, title, category, location, description, contact_info, link, created_at FROM initiatives
        WHERE title LIKE ?1 OR location LIKE ?1 OR description LIKE ?1
        ORDER BY created_at DESC LIMIT 200`
     )
@@ -36,7 +52,7 @@ export async function GET(request: NextRequest) {
       .all<InitiativeRow>();
   } else {
     result = await DB.prepare(
-      `SELECT id, title, category, location, description, contact_info, created_at FROM initiatives
+      `SELECT id, title, category, location, description, contact_info, link, created_at FROM initiatives
        ORDER BY created_at DESC LIMIT 200`
     ).all<InitiativeRow>();
   }
@@ -60,6 +76,7 @@ export async function POST(request: NextRequest) {
   const location = (formData.get("location") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const contactInfo = (formData.get("contactInfo") as string)?.trim();
+  const link = normalizeLink(formData.get("link") as string | null);
 
   if (!title || !location || !contactInfo) {
     return NextResponse.json(
@@ -75,10 +92,10 @@ export async function POST(request: NextRequest) {
   const editToken = crypto.randomUUID();
 
   await DB.prepare(
-    `INSERT INTO initiatives (id, title, category, location, description, contact_info, edit_token)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+    `INSERT INTO initiatives (id, title, category, location, description, contact_info, link, edit_token)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
   )
-    .bind(id, title, finalCategory, location, description, contactInfo, editToken)
+    .bind(id, title, finalCategory, location, description, contactInfo, link, editToken)
     .run();
 
   return NextResponse.json({ id, editToken }, { status: 201 });

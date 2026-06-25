@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/cloudflare";
-import { VALID_CATEGORIES } from "../route";
+import { VALID_CATEGORIES, normalizeLink } from "../route";
 
 interface InitiativeRow {
   id: string;
@@ -9,6 +9,7 @@ interface InitiativeRow {
   location: string;
   description: string | null;
   contact_info: string;
+  link: string | null;
   created_at: string;
 }
 
@@ -20,7 +21,7 @@ export async function GET(
   const { DB } = await getEnv();
 
   const initiative = await DB.prepare(
-    `SELECT id, title, category, location, description, contact_info, created_at
+    `SELECT id, title, category, location, description, contact_info, link, created_at
      FROM initiatives WHERE id = ?1`
   )
     .bind(id)
@@ -40,6 +41,7 @@ interface PatchBody {
   location?: string;
   description?: string | null;
   contactInfo?: string;
+  link?: string | null;
 }
 
 export async function PATCH(
@@ -71,14 +73,17 @@ export async function PATCH(
   const category =
     body.category && VALID_CATEGORIES.includes(body.category) ? body.category : null;
 
+  const link = normalizeLink(body.link);
+
   await DB.prepare(
     `UPDATE initiatives SET
        title = COALESCE(?1, title),
        category = COALESCE(?2, category),
        location = COALESCE(?3, location),
        description = ?4,
-       contact_info = COALESCE(?5, contact_info)
-     WHERE id = ?6`
+       contact_info = COALESCE(?5, contact_info),
+       link = ?6
+     WHERE id = ?7`
   )
     .bind(
       title || null,
@@ -86,6 +91,7 @@ export async function PATCH(
       location || null,
       body.description?.trim() || null,
       contactInfo || null,
+      link,
       id
     )
     .run();

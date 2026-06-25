@@ -11,6 +11,7 @@ interface InitiativeRow {
   location: string;
   description: string | null;
   contact_info: string;
+  link: string | null;
   created_at: string;
 }
 
@@ -23,7 +24,7 @@ export default async function InitiativeDetailPage({
   const { DB } = await getEnv();
 
   const initiative = await DB.prepare(
-    `SELECT id, title, category, location, description, contact_info, created_at
+    `SELECT id, title, category, location, description, contact_info, link, created_at
      FROM initiatives WHERE id = ?1`
   )
     .bind(id)
@@ -54,6 +55,18 @@ export default async function InitiativeDetailPage({
         <p className="text-neutral-700 mt-1">
           <span className="font-medium">Contacto:</span> {initiative.contact_info}
         </p>
+        {initiative.link && (
+          <p className="mt-2">
+            <a
+              href={initiative.link}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-block bg-red-700 text-white px-3 py-1.5 rounded text-sm font-medium"
+            >
+              Visitar enlace (recaudación, redes, más información)
+            </a>
+          </p>
+        )}
         <p className="text-xs text-neutral-400 mt-2">
           Publicado {new Date(initiative.created_at + "Z").toLocaleString("es-VE")}
         </p>

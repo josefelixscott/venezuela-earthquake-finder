@@ -11,6 +11,7 @@ interface InitiativeRow {
   location: string;
   description: string | null;
   contact_info: string;
+  link: string | null;
   created_at: string;
 }
 
@@ -58,6 +59,7 @@ export default function EditInitiativePage() {
       location: formData.get("location"),
       description: formData.get("description"),
       contactInfo: formData.get("contactInfo"),
+      link: formData.get("link"),
     };
 
     try {
@@ -192,6 +194,16 @@ export default function EditInitiativePage() {
             name="contactInfo"
             required
             defaultValue={initiative.contact_info}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Enlace (opcional)</label>
+          <input
+            name="link"
+            type="text"
+            defaultValue={initiative.link ?? ""}
+            placeholder="GoFundMe, recaudación, página o red social..."
             className="w-full border rounded px-3 py-2"
           />
         </div>

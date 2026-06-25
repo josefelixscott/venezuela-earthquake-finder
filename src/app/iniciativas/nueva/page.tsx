@@ -91,6 +91,15 @@ export default function NewInitiativePage() {
             className="w-full border rounded px-3 py-2"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Enlace (opcional)</label>
+          <input
+            name="link"
+            type="text"
+            placeholder="GoFundMe, recaudación, página o red social..."
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
