@@ -104,13 +104,16 @@ export default async function HubPage() {
         </p>
       </div>
 
-      <div className="bg-blue-50 rounded-lg p-3 flex items-center gap-3">
+      <Link
+        href="/ubicados"
+        className="bg-blue-50 rounded-lg p-3 flex items-center gap-3 hover:bg-blue-100"
+      >
         <IconBuildingHospital size={22} stroke={1.75} className="text-blue-800 shrink-0" />
         <p className="text-sm text-blue-800">
           <span className="text-lg font-medium">{locatedCount}</span> personas ubicadas en
           hospitales y centros
         </p>
-      </div>
+      </Link>
 
       <div className="flex gap-2">
         <a
