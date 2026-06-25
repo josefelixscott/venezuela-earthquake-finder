@@ -20,8 +20,16 @@ interface ReplyRow {
   author_name: string;
   message: string;
   contact_info: string | null;
+  note_type: string;
   created_at: string;
 }
+
+const NOTE_TYPE_LABELS: Record<string, string> = {
+  information: "Tiene información",
+  is_this_person: "Es esta persona",
+  volunteering: "Quiere ayudar a buscar",
+  believed_found: "Cree que fue encontrado/a",
+};
 
 export default async function PostDetailPage({
   params,
@@ -76,7 +84,14 @@ export default async function PostDetailPage({
           <ul className="space-y-3 mb-4">
             {replies.map((reply) => (
               <li key={reply.id} className="border rounded p-3 bg-white">
-                <div className="font-medium">{reply.author_name}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{reply.author_name}</span>
+                  {NOTE_TYPE_LABELS[reply.note_type] && (
+                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                      {NOTE_TYPE_LABELS[reply.note_type]}
+                    </span>
+                  )}
+                </div>
                 <p className="text-neutral-700 text-sm">{reply.message}</p>
                 {reply.contact_info && (
                   <p className="text-neutral-500 text-xs mt-1">Contacto: {reply.contact_info}</p>

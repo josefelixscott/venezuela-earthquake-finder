@@ -19,6 +19,8 @@ export default function ReplyForm({ postId }: { postId: string }) {
       authorName: formData.get("authorName"),
       message: formData.get("message"),
       contactInfo: formData.get("contactInfo"),
+      noteType: formData.get("noteType"),
+      website: formData.get("website"),
     };
 
     try {
@@ -43,6 +45,20 @@ export default function ReplyForm({ postId }: { postId: string }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-2 border-t pt-4">
       <h3 className="font-medium text-sm">¿Tienes información? Responde aquí.</h3>
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        className="absolute -left-[9999px] w-px h-px opacity-0"
+        aria-hidden="true"
+      />
+      <select name="noteType" defaultValue="information" className="w-full border rounded px-3 py-2 text-sm">
+        <option value="information">Tengo información</option>
+        <option value="is_this_person">Soy esta persona</option>
+        <option value="volunteering">Quiero ayudar a buscar</option>
+        <option value="believed_found">Creo que esta persona fue encontrada</option>
+      </select>
       <input
         name="authorName"
         required

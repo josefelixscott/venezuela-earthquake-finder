@@ -8,7 +8,6 @@ interface PostRow {
   last_known_location: string;
   description: string | null;
   contact_info: string;
-  photo_key: string | null;
   status: string;
   created_at: string;
 }
@@ -35,6 +34,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
 
+  // Honeypot: real users never fill this hidden field; bots that fill every field do.
+  if ((formData.get("website") as string)?.trim()) {
+    return NextResponse.json({ error: "el nombre, la ubicación y el contacto son obligatorios" }, { status: 400 });
+  }
+
   const name = (formData.get("name") as string)?.trim();
   const age = (formData.get("age") as string)?.trim() || null;
   const lastKnownLocation = (formData.get("lastKnownLocation") as string)?.trim();
@@ -50,13 +54,14 @@ export async function POST(request: NextRequest) {
 
   const { DB } = await getEnv();
   const id = crypto.randomUUID();
+  const editToken = crypto.randomUUID();
 
   await DB.prepare(
-    `INSERT INTO posts (id, name, age, last_known_location, description, contact_info)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+    `INSERT INTO posts (id, name, age, last_known_location, description, contact_info, edit_token)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
   )
-    .bind(id, name, age, lastKnownLocation, description, contactInfo)
+    .bind(id, name, age, lastKnownLocation, description, contactInfo, editToken)
     .run();
 
-  return NextResponse.json({ id }, { status: 201 });
+  return NextResponse.json({ id, editToken }, { status: 201 });
 }

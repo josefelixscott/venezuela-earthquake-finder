@@ -17,11 +17,11 @@ export default function NewPostPage() {
 
     try {
       const res = await fetch("/api/posts", { method: "POST", body: formData });
-      const data = (await res.json()) as { id?: string; error?: string };
+      const data = (await res.json()) as { id?: string; editToken?: string; error?: string };
       if (!res.ok) {
         throw new Error(data.error ?? "Algo salió mal");
       }
-      router.push(`/posts/${data.id}`);
+      router.push(`/edit/${data.editToken}?created=1`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo salió mal");
       setSubmitting(false);
@@ -32,6 +32,14 @@ export default function NewPostPage() {
     <div className="max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4">Publica sobre alguien que buscas</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          className="absolute -left-[9999px] w-px h-px opacity-0"
+          aria-hidden="true"
+        />
         <div>
           <label className="block text-sm font-medium mb-1">Nombre *</label>
           <input name="name" required className="w-full border rounded px-3 py-2" />
